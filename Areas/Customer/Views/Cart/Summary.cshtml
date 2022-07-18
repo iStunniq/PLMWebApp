@@ -1,0 +1,140 @@
+﻿@model PLM.Models.ViewModels.ShoppingCartVM
+
+@{
+    ViewData["Title"] = "Reservation Summary";
+}
+
+<form method="post" enctype="multipart/form-data">
+	<input asp-for="ReservationHeader.GCashImageUrl" hidden />
+	<br />
+	<div class="container">
+		<div class="card">
+			<div class="card-header bg-primary text-light ml-0">
+				<div class=" row container">
+					<div class="col-6">
+						<i class="fa fa-shopping-cart"></i> &nbsp;
+						Order Summary
+					</div>
+					<div class="col-6 text-end">
+						<a asp-action="Index" class="btn btn-info btn-sm">Back to Reservation Cart</a>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="container rounded p-2">
+					<div class="row">
+						<div class="col-12 col-lg-6 pb-4">
+							<div class="row">
+								<h4 class="d-flex justify-content-between align-items-center mb-3">
+									<span class="text-info">Shipping Details:</span>
+								</h4>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>First Name</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.FirstName" class="form-control" />
+									<span asp-validation-for="ReservationHeader.FirstName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Last Name</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.LastName" class="form-control" />
+									<span asp-validation-for="ReservationHeader.LastName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Phone</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.Phone" class="form-control" />
+									<span asp-validation-for="ReservationHeader.Phone" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Address</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.Address" class="form-control" />
+									<span asp-validation-for="ReservationHeader.Address" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>City</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.City" class="form-control" />
+									<span asp-validation-for="ReservationHeader.City" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Zip Code</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.ZipCode" class="form-control" />
+									<span asp-validation-for="ReservationHeader.ZipCode" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>GCash Payment Image</label>
+								</div>
+								<div class="col-9">
+									<br />
+									<input type="file" id="uploadBox" name="file" class="form-control">
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Preferred Delivery Date</label>
+								</div>
+								<div class="col-9">
+									<input class="form-control" />
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-lg-5 offset-lg-1">
+							<h4 class="d-flex justify-content-between align-items-center mb-3">
+								<span class="text-info">Order Summary:</span>
+							</h4>
+							<ul class="list-group mb-3">
+								@foreach(var details in Model.ListCart){
+									<li class="list-group-item d-flex justify-content-between">
+										<div>
+											<h6 class="my-0">@details.Product.Name</h6>
+											<small class="text-muted">Quantity: @details.Count</small>
+										</div>
+										<span class="text-muted">@((details.Price * details.Count).ToString("c"))</span>
+									</li>
+								}
+
+								<li class="list-group-item d-flex justify-content-between bg-light">
+									<small class="text-info">Total (PHP)</small>
+									<strong class="text-info">@Model.ReservationHeader.OrderTotal.ToString("c")</strong>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-12 col-md-8 pt-2">
+						<p style="color:maroon; font-size:14px;"> </p>
+					</div>
+					<div class="col-12 col-md-4">
+						<button type="submit" value="Place Reservation" class="btn btn-primary form-control">Place Reservation</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

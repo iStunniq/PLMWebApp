@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Region Index";
+}
+
+<div class="container p-3">
+
+    <div class="row pt-4"> 
+        <div class="col-6">
+            <h2 class="text-primary">Region List</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Region" asp-action="Upsert" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Create New Region
+            </a>
+        </div>
+    </div>
+
+    <br /> 
+
+    <table id="tblData" class="table table-hover" style="width: 100%" > 
+        <thead>
+            <tr>
+                <th>
+                    Id
+                </th>
+                <th>
+                    Name
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+@section Scripts{
+    <script src="~/js/region.js"></script>
+}
