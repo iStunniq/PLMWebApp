@@ -17,7 +17,7 @@ namespace PLM.DataAccess.Repository
             Category = new CategoryRepository(_db);
             Brand = new BrandRepository(_db);
             Product = new ProductRepository(_db);
-            Region = new RegionRepository(_db);
+            //Region = new RegionRepository(_db);
             ApplicationUser = new ApplicationUserRepository(_db);
             ShoppingCart = new ShoppingCartRepository(_db);
             ReservationHeader = new ReservationHeaderRepository(_db);
@@ -31,7 +31,7 @@ namespace PLM.DataAccess.Repository
 
         public IProductRepository Product { get; private set; }
 
-        public IRegionRepository Region { get; private set; }
+        //public IRegionRepository Region { get; private set; }
 
         public IShoppingCartRepository ShoppingCart { get; private set; }
 

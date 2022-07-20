@@ -36,11 +36,11 @@ namespace PLM.Models
         public string ZipCode { get; set; }
 
         
-        [Display(Name = "Region")]
-        public int? RegionId { get; set; }
-        [ForeignKey("RegionId")]
-        [ValidateNever]
-        public Region Region { get; set; }
+        //[Display(Name = "Region")]
+        //public int? RegionId { get; set; }
+        //[ForeignKey("RegionId")]
+        //[ValidateNever]
+        //public Region Region { get; set; }
 
         [Display(Name = "Activity Status")]
         public bool IsActive { get; set; }

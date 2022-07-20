@@ -14,7 +14,7 @@ namespace PLM.DataAccess.Repository.IRepository
 
         IProductRepository Product { get; }
 
-        IRegionRepository Region { get; }
+        //IRegionRepository Region { get; }
 
         IShoppingCartRepository ShoppingCart { get; }
 

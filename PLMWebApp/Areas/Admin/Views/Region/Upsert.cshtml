@@ -1,4 +1,4 @@
-﻿@model Region
+﻿@*@model Region
 
 @{
     ViewData["Title"] = "Region";
@@ -14,7 +14,7 @@
                     <h2 class="text-primary">@(Model.Id != 0? "Update" : "Create") Region</h2>
                 </div>
                 <div class="mb-3">
-                    @*<div asp-validation-summary="All"></div>*@
+                    
                     <label asp-for="Name"></label>
                     <br />
                     <input asp-for="Name" type="text" class="form-control" placeholder="Region Name">
@@ -42,4 +42,4 @@
     @{
     <partial name="_ValidationScriptsPartial" />
     }
-}
+}*@

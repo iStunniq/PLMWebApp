@@ -136,13 +136,13 @@ namespace PLMWebApp.Areas.Identity.Pages.Account
 
             public string? Role { get; set; }
 
-            public int RegionId { get; set; }
+            //public int RegionId { get; set; }
 
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList { get; set; }
 
-            [ValidateNever]
-            public IEnumerable<SelectListItem> RegionList { get; set; }
+            //[ValidateNever]
+            //public IEnumerable<SelectListItem> RegionList { get; set; }
         }
 
 
@@ -167,11 +167,11 @@ namespace PLMWebApp.Areas.Identity.Pages.Account
                     Text = i,
                     Value = i
                 }),
-                RegionList = _unitOfWork.Region.GetAll().Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.Id.ToString()
-                }),
+                //RegionList = _unitOfWork.Region.GetAll().Select(i => new SelectListItem
+                //{
+                //    Text = i.Name,
+                //    Value = i.Id.ToString()
+                //}),
             };
         }
 
@@ -192,7 +192,7 @@ namespace PLMWebApp.Areas.Identity.Pages.Account
                 user.Address = Input.Address;
                 user.City = Input.City;
                 user.ZipCode = Input.ZipCode;
-                user.RegionId = Input.RegionId;
+                //user.RegionId = Input.RegionId;
 
 
 

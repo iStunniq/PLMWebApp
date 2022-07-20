@@ -15,7 +15,7 @@ namespace PLM.DataAccess
         public DbSet<Category> Categories { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<Region> Regions { get; set; }
+        //public DbSet<Region> Regions { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
