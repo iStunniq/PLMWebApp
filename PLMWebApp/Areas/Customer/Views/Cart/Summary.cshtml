@@ -90,6 +90,7 @@
 								<div class="col-9">
 									<br />
 									<input type="file" id="uploadBox" name="file" class="form-control">
+									<span asp-validation-for="ReservationHeader.GCashImageUrl" class="text-danger"></span>
 								</div>
 							</div>
 							<div class="row my-1">
@@ -97,7 +98,8 @@
 									<label>Preferred Delivery Date</label>
 								</div>
 								<div class="col-9">
-									<input class="form-control" />
+									<input asp-for="ReservationHeader.PreferredDate" value="" class="form-control" type="datetime-local" />
+									<span asp-validation-for="ReservationHeader.PreferredDate" class="text-danger"></span>
 								</div>
 							</div>
 						</div>
@@ -131,10 +133,29 @@
 						<p style="color:maroon; font-size:14px;"> </p>
 					</div>
 					<div class="col-12 col-md-4">
-						<button type="submit" value="Place Reservation" class="btn btn-primary form-control">Place Reservation</button>
+						<button type="submit" onclick="return ValidateInput()" value="Place Reservation" class="btn btn-primary form-control">Place Reservation</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </form>
+
+@section Scripts{
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		function ValidateInput(){
+            if (document.getElementById("uploadBox").value == "") 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Please Input Gcash Photo'
+                    });
+                return false;
+            }
+            return true;
+        }
+	</script>
+}

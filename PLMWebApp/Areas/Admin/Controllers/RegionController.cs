@@ -5,11 +5,13 @@ using PLM.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Hosting; 
 using PLM.Models;
 using PLM.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using PLM.Utility;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-
-    public class RegionController : Controller
+[Authorize(Roles = SD.Role_Admin)]
+public class RegionController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 

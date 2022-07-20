@@ -23,8 +23,8 @@ $(document).ready(function () {
         loadDataTable("inprocess");
     } else if (url.includes("completed")) {
         loadDataTable("completed");
-    } else if (url.includes("approved")) {
-        loadDataTable("approved");
+    } else if (url.includes("approval")) {
+        loadDataTable("approval");
     } else if (url.includes("shipped")) {
         loadDataTable("shipped");
     } else {

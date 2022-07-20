@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PLM.DataAccess;
 using PLM.DataAccess.Repository.IRepository;
 using PLM.Models;
+using PLM.Utility;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-
-    public class BrandController : Controller
+[Authorize(Roles = SD.Role_Admin)]
+public class BrandController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 

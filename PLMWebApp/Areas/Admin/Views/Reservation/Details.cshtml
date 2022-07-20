@@ -36,7 +36,7 @@
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.FirstName" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.FirstName" read-only type="text" class="form-control" disabled />
 									}
 								</div>
 							</div>
@@ -50,7 +50,7 @@
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.LastName" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.LastName" read-only type="text" class="form-control" disabled />
 									}
 								</div>
 							</div>
@@ -64,7 +64,7 @@
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.Phone" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.Phone" read-only type="text" class="form-control" disabled />
 									}
 								</div>
 							</div>
@@ -78,7 +78,7 @@
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.Address" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.Address" read-only type="text" class="form-control" disabled />
 									}
 								</div>
 							</div>
@@ -92,7 +92,7 @@
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.City" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.City" read-only type="text" class="form-control" disabled />
 									}
 								</div>
 							</div>
@@ -106,32 +106,42 @@
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.ZipCode" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.ZipCode" read-only type="text" class="form-control" disabled />
 									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Email</div>
 								<div class="col-9">
-										<input asp-for="ReservationHeader.ApplicationUser.Email" read-only type="text" class="form-control" />
+										<input asp-for="ReservationHeader.ApplicationUser.Email" read-only type="text" class="form-control" disabled />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Order Date</div>
 								<div class="col-9">
-									<input value="@Model.ReservationHeader.OrderDate.ToShortDateString()" read-only type="text" class="form-control" />
+									<input asp-for="ReservationHeader.OrderDate" readonly type="datetime-local" class="form-control"/>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Preferred Shipping Date</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.PreferredDate" readonly type="datetime-local" class="form-control"/>
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Carrier</div>
 								<div class="col-9">
-									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Logistics))
 									{
-										<input asp-for="ReservationHeader.Carrier" id="carrier" type="text" class="form-control" />
+										<select id="carrier" asp-for="ReservationHeader.Carrier" asp-items="@Model.Carrier" class="form-select">
+											<option disabled value="0" selected>--Carrier Selection--</option>
+									    </select>
 									}
 									else
 									{
-										<input asp-for="ReservationHeader.Carrier" read-only type="text" class="form-control" />
+										<select id="carrier" asp-for="ReservationHeader.Carrier" asp-items="@Model.Carrier" class="form-select" disabled>
+											<option disabled value="0" selected>--Carrier Selection--</option>
+									    </select>
 									}
 								</div>
 							</div>
@@ -151,7 +161,7 @@
 							<div class="row my-1">
 								<div class="col-3">Shipping Date</div>
 								<div class="col-9">
-									<input value="@Model.ReservationHeader.ShippingDate.ToShortDateString()" type="text" readonly class="form-control" />
+									<input asp-for="ReservationHeader.ShippingDate" type="datetime-local" class="form-control"/>
 								</div>
 							</div>
 							@*<div class="row my-1">
@@ -172,7 +182,7 @@
 								{
 									<div class="col-3">Payment Date</div>
 									<div class="col-9">
-										<input value="@Model.ReservationHeader.PaymentDate.ToShortDateString()" readonly id="paymentDate" class="form-control" />
+										<input asp-for="ReservationHeader.PaymentDate" type="datetime-local" readonly id="paymentDate" class="form-control" />
 									</div>
 								}
 							</div>
@@ -231,17 +241,18 @@
 							{
 								@if (Model.ReservationHeader.OrderStatus == SD.StatusPending)
 								{
-									<input type="submit" asp-action="ApproveForProcessing" class="btn btn-primary form-control my-1" value="Approve For Processing" />
-								}
-
-								@if (Model.ReservationHeader.OrderStatus == SD.StatusApproved)
-								{
-									<input type="submit" asp-action="StartProcessing" class="btn btn-primary form-control my-1" value="Start Processing" />
+									<input type="submit" asp-action="ForProcessing" class="btn btn-primary form-control my-1" value="Approve For Processing" />
 								}
 
 								@if (Model.ReservationHeader.OrderStatus == SD.StatusInProcess)
 								{
-									<input type="submit" onclick="return ValidateInput()" asp-action="ShipOrder" class="btn btn-primary form-control my-1" value="Ship Order" />
+									<input type="submit" onclick="return ValidateInput()" asp-action="ToCourier" class="btn btn-primary form-control my-1" value="Send for Courier Approval" />
+								}
+
+								@if (Model.ReservationHeader.OrderStatus == SD.StatusApproval)
+								{
+									<input type="submit" asp-action="ShipOrder" class="btn btn-primary form-control my-1" value="Take Reservation" />
+									<input type="submit" asp-action="RejectOrder" class="btn btn-primary form-control my-1" value="Reject Reservation" />
 								}
 
 								@if (Model.ReservationHeader.OrderStatus == SD.StatusShipped)
@@ -252,6 +263,11 @@
 								@if (Model.ReservationHeader.OrderStatus != SD.StatusCancelled)
 								{
 									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
+								}
+
+								@if (Model.ReservationHeader.OrderStatus != SD.StatusPending)
+								{
+									<input type="submit" asp-action="Pending" class="btn btn-danger form-control my-1" value="Return to Pending" />
 								}
 							}
 						</div>
@@ -266,7 +282,7 @@
 	<partial name="_ValidationScriptsPartial" />
 	<script>
 		function ValidateInput(){
-            if (document.getElementById("carrier").value == "") 
+            if (document.getElementById("carrier").value == "0") 
             {
                 Swal.fire
                     ({

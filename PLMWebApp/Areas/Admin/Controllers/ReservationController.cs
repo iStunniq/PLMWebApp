@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PLM.DataAccess.Repository.IRepository;
 using PLM.Models;
 using PLM.Models.ViewModels;
@@ -29,10 +31,16 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
         public IActionResult Details(int reservationId)
         {
+
             ReservationVM = new ReservationVM()
             {
                 ReservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == reservationId, includeProperties: "ApplicationUser"),
                 ReservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == reservationId, includeProperties: "Product"),
+                Carrier = _unitOfWork.ApplicationUser.GetAll().Select(i => new SelectListItem
+                {
+                    Text = i.Email,
+                    Value = i.Id.ToString()
+                })
             };
 
             return View(ReservationVM);
@@ -68,26 +76,28 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Sales)]
         [ValidateAntiForgeryToken]
-        public IActionResult ApproveForProcessing()
+        public IActionResult ForProcessing()
         {
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
-            reservationHeaderFromDb.OrderStatus = SD.StatusApproved;
+            reservationHeaderFromDb.OrderStatus = SD.StatusInProcess;
             reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusApproved;
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
-
+        
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics)]
         [ValidateAntiForgeryToken]
-        public IActionResult StartProcessing()
+        public IActionResult ToCourier()
         {
 
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
-            reservationHeaderFromDb.OrderStatus = SD.StatusInProcess;
+            reservationHeaderFromDb.OrderStatus = SD.StatusApproval;
+            reservationHeaderFromDb.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
+            reservationHeaderFromDb.Carrier = ReservationVM.ReservationHeader.Carrier;
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
@@ -95,15 +105,31 @@ namespace PLMWebApp.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Courier)]
+        [ValidateAntiForgeryToken]
+        public IActionResult RejectOrder()
+        {
+            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+
+            reservationHeader.OrderStatus = SD.StatusInProcess;
+            reservationHeader.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
+            reservationHeader.Carrier = "";
+
+            _unitOfWork.ReservationHeader.Update(reservationHeader);
+
+            _unitOfWork.Save();
+            TempData["Success"] = "Reservation is for Shipping Status Updated Successfully";
+            return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Courier)]
         [ValidateAntiForgeryToken]
         public IActionResult ShipOrder()
         {
             var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
 
-            reservationHeader.Carrier = ReservationVM.ReservationHeader.Carrier;
             reservationHeader.OrderStatus = SD.StatusShipped;
-            reservationHeader.ShippingDate = DateTime.Now;
 
             _unitOfWork.ReservationHeader.Update(reservationHeader);
 
@@ -121,6 +147,21 @@ namespace PLMWebApp.Areas.Admin.Controllers
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusCompleted;
+            _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
+            _unitOfWork.Save();
+            TempData["Success"] = "Reservation Status Updated Successfully";
+            return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Courier)]
+        [ValidateAntiForgeryToken]
+        public IActionResult Pending()
+        {
+
+            //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
+            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            reservationHeaderFromDb.OrderStatus = SD.StatusPending;
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
@@ -168,8 +209,8 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 case "pending":
                     reservationHeaders = reservationHeaders.Where(u => u.OrderStatus == SD.StatusPending);
                     break;
-                case "approved":
-                    reservationHeaders = reservationHeaders.Where(u => u.OrderStatus == SD.StatusApproved);
+                case "approval":
+                    reservationHeaders = reservationHeaders.Where(u => u.OrderStatus == SD.StatusApproval);
                     break;
                 case "inprocess":
                     reservationHeaders = reservationHeaders.Where(u => u.OrderStatus == SD.StatusInProcess);

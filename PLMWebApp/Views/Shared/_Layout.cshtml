@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using PLM.Utility
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -37,27 +43,39 @@
                             <li class="nav-item">
                             <a class="nav-link" href="#">About</a>
                             </li>*@
+                            
                             <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Management</a>
-                            <div class="dropdown-menu">
+                            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Logistics))
+                                {
+                                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Management</a>
+                                }
+                                <div class="dropdown-menu">
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Brand" asp-action="Index">Brand</a>
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
-                            @*<a class="dropdown-item" href="#">Something else here</a>*@
+                            @*<a class="dropdown-item" href="#">Something else here</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Region" asp-action="Index">Region</a>
-                            @*<a class="dropdown-item" href="#">Separated link</a>*@
+                            <a class="dropdown-item" href="#">Separated link</a>*@
                             </div>
+                            
                         </li>
+                       
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin" asp-controller="Reservation" asp-action="Index">
-                                Manage Reservation
+                                Reservations
                             </a>
-                        </li>
+                        </li>   
+                        @if (User.IsInRole(SD.Role_Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/RegisterAdmin">Admin Register</a>
+                                </li>
+                            }
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-                                <i class="bi bi-cart"></i>
-                            </a>
+                        <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                            <i class="bi bi-cart"></i>
+                        </a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

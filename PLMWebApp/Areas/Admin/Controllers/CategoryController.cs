@@ -2,11 +2,13 @@
 using PLM.DataAccess;
 using PLM.DataAccess.Repository.IRepository;
 using PLM.Models;
+using Microsoft.AspNetCore.Authorization;
+using PLM.Utility;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-
-    public class CategoryController : Controller
+[Authorize(Roles = SD.Role_Admin)]
+public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 

@@ -36,6 +36,8 @@ namespace PLM.Models
 
         public DateTime PaymentDueDate { get; set; }
 
+        public DateTime PreferredDate { get; set; }
+
         [ValidateNever]
         public string GCashImageUrl { get; set; }
 

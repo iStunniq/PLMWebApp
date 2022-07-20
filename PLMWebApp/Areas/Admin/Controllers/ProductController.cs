@@ -5,11 +5,14 @@ using PLM.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Hosting; 
 using PLM.Models;
 using PLM.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using PLM.Utility;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-
-    public class ProductController : Controller
+[Authorize(Roles = SD.Role_Admin)]
+public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;

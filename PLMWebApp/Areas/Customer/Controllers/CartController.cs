@@ -98,6 +98,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
             ShoppingCartVM.ReservationHeader.PaymentStatus = SD.PaymentStatusPending;
             ShoppingCartVM.ReservationHeader.OrderStatus = SD.StatusPending;
             ShoppingCartVM.ReservationHeader.OrderDate = System.DateTime.Now;
+            ShoppingCartVM.ReservationHeader.ShippingDate = ShoppingCartVM.ReservationHeader.PreferredDate;
             ShoppingCartVM.ReservationHeader.ApplicationUserId = claim.Value;
 
             foreach (var cart in ShoppingCartVM.ListCart)
