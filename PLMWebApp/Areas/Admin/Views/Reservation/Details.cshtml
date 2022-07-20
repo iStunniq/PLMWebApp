@@ -257,6 +257,7 @@
 
 								@if (Model.ReservationHeader.OrderStatus == SD.StatusShipped)
 								{
+									<input type="submit" asp-action="ToCourier" class="btn btn-primary form-control my-1" value="Undo Approval" />
 									<input type="submit" asp-action="Completed" class="btn btn-success form-control my-1" value="Completed" />
 								}
 								
