@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Trashcan\" />
     <Folder Include="wwwroot\images\gcash\" />
     <Folder Include="wwwroot\images\products\" />
   </ItemGroup>

@@ -25,9 +25,6 @@ namespace PLM.DataAccess.Repository
                 objFromDb.Name = obj.Name;
                 objFromDb.Description = obj.Description;
                 objFromDb.Price = obj.Price;
-                objFromDb.Price50 = obj.Price50;
-                objFromDb.Price100 = obj.Price100;
-                objFromDb.ListPrice = obj.ListPrice;
                 objFromDb.CategoryId = obj.CategoryId;
                 objFromDb.BrandId = obj.BrandId;
                 if (obj.ImageUrl != null)

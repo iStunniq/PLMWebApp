@@ -23,18 +23,6 @@ namespace PLM.Models
         [Range(1, 30000)]
         public double Price { get; set; }
 
-        [Display(Name = "Original Price")]
-        [Range(1, 10000)]
-        public double? ListPrice { get; set; }
-
-        [Display(Name = "Price for 50-99 Orders")]
-        [Range(1, 30000)]
-        public double? Price50 { get; set; }
-
-        [Display(Name = "Price for 100+ Orders")]
-        [Range(1, 50000)]
-        public double? Price100 { get; set; }
-
         [ValidateNever]
         public string ImageUrl { get; set; }
 
