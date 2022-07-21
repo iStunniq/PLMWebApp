@@ -39,6 +39,7 @@ namespace PLM.Models
         [ForeignKey("BrandId")]
         [ValidateNever]
         public Brand Brand { get; set; }
+        public int Stock { get; set; } = 0;
         public bool IsActive { get; set; } = true;
         public DateTime Inactivity { get; set; } = DateTime.Now;
 

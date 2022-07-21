@@ -10,6 +10,8 @@ namespace PLM.DataAccess.Repository.IRepository
     {
         ICategoryRepository Category { get; }
 
+        IBatchRepository Batch { get; }
+
         IBrandRepository Brand { get; }
 
         IProductRepository Product { get; }
