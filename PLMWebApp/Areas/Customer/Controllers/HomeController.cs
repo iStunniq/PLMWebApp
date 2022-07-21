@@ -64,7 +64,7 @@ public class HomeController : Controller
             
             _unitOfWork.Save();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Cart");
         }
 
         public IActionResult Privacy()

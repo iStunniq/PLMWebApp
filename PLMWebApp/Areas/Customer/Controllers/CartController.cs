@@ -6,6 +6,7 @@ using PLM.Models.ViewModels;
 using PLM.Utility;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace PLMWebApp.Areas.Customer.Controllers
 {
@@ -15,16 +16,19 @@ namespace PLMWebApp.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly IEmailSender _emailSender;
+
 
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
         
         public int OrderTotal { get; set; }
         
-        public CartController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
+        public CartController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment, IEmailSender emailSender)
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -147,6 +151,8 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
         public IActionResult ReservationConfirmation(int id)
         {
+            ReservationHeader reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == id, includeProperties: "ApplicationUser");
+            _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation Confirmed! - Meatify", $"<p>Thank you for making a reservation, {reservationHeader.FirstName}! This is for Reservation # {id}.</p>");
             return View(id);
         }
 
