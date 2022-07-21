@@ -15,6 +15,7 @@ namespace PLM.DataAccess.Repository
         {
             _db = db;
             Category = new CategoryRepository(_db);
+            Batch = new BatchRepository(_db);
             Brand = new BrandRepository(_db);
             Product = new ProductRepository(_db);
             ApplicationUser = new ApplicationUserRepository(_db);
@@ -25,6 +26,8 @@ namespace PLM.DataAccess.Repository
 
 
         public ICategoryRepository Category { get; private set; }
+
+        public IBatchRepository Batch { get; private set; }
 
         public IBrandRepository Brand { get; private set; }
 

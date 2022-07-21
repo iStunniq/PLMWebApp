@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PLM.DataAccess;
 
@@ -11,9 +12,10 @@ using PLM.DataAccess;
 namespace PLMWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220721024426_AddBatchToDb")]
+    partial class AddBatchToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -250,7 +252,7 @@ namespace PLMWebApp.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Batches", (string)null);
+                    b.ToTable("Batches");
                 });
 
             modelBuilder.Entity("PLM.Models.Brand", b =>
@@ -274,7 +276,7 @@ namespace PLMWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("PLM.Models.Category", b =>
@@ -303,7 +305,7 @@ namespace PLMWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("PLM.Models.Product", b =>
@@ -341,16 +343,13 @@ namespace PLMWebApp.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("PLM.Models.ReservationDetail", b =>
@@ -379,7 +378,7 @@ namespace PLMWebApp.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ReservationDetails", (string)null);
+                    b.ToTable("ReservationDetails");
                 });
 
             modelBuilder.Entity("PLM.Models.ReservationHeader", b =>
@@ -456,7 +455,7 @@ namespace PLMWebApp.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("ReservationHeaders", (string)null);
+                    b.ToTable("ReservationHeaders");
                 });
 
             modelBuilder.Entity("PLM.Models.ShoppingCart", b =>
@@ -483,7 +482,7 @@ namespace PLMWebApp.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ShoppingCarts", (string)null);
+                    b.ToTable("ShoppingCarts");
                 });
 
             modelBuilder.Entity("PLM.Models.ApplicationUser", b =>

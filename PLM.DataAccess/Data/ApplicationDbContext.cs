@@ -13,6 +13,7 @@ namespace PLM.DataAccess
         }
 
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Batch> Batches { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
