@@ -3,27 +3,51 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+<div class="pb-4"></div>
+
+<div class="card text-white bg-primary mb-3">
+    <div class="card-body">
+        <h3 class="card-title">Mabuhay!</h3>
+        <p class="card-text">We supply wholesale frozen meat products like pork, chicken and beef: perfect for your food business!</p>
+    </div>
+</div>
+
+<div class="col-12 text-center mb-3">
+        <h1 class="text-primary text-center">Welcome to Meatify</h1>
+        <img src="~/images/meatify-small-logo.png" width="10%" />
+</div>
+
+<div class="card text-white bg-primary mb-3">
+    <div class="card-body">
+        <h4 class="card-title">Available Products</h4>
+        @*<h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>*@
+        <p class="card-text">Check out the selection of Meatify's frozen meat products!</p>
+        @*<a href="#" class="card-link">Card link</a>
+        <a href="#" class="card-link">Another link</a>*@
+    </div>
+</div>
+
 
 <div class="row pb-3">
-    @foreach(var product in Model)
+    @foreach (var product in Model)
     {
         <div class="col-lg-3 col-md-6">
             <div class="row p-2">
                 <div class="col-12 p-1" style="border: 1px solid #008cba; border-radius: 5px;">
                     <div class="card">
-                        <img src="@product.ImageUrl" style="float: left; height: 150px; object-fit: cover;" class="card-img-top rounded"/>
+                        <img src="@product.ImageUrl" style="float: left; height: 150px; object-fit: cover;" class="card-img-top rounded" />
 
-                        <div class="card-body"> 
-                            <div class="pl-1"> 
+                        <div class="card-body">
+                            <div class="pl-1">
                                 <p class="card-title h5 text-primary">@product.Name</p>
                                 <p class="card-title text-info">Brand: @product.Brand.Name</p>
                             </div>
-                            <div class="pl-1"> 
+                            <div class="pl-1">
                                 <p>Price: <b>@product.Price.ToString("0.00") PHP</b></p>
                             </div>
                         </div>
 
-                        <div> 
+                        <div>
                             <a asp-action="Details" class="btn btn-primary form-control" asp-route-productId="@product.Id">Details</a>
                         </div>
 
