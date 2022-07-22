@@ -29,5 +29,10 @@ namespace PLM.Utility
         public const string PaymentStatusRefunded = "Refunded";
         public const string PaymentStatusDelayedPayment = "ApprovedForDelayedPayment";
         public const string PaymentStatusRejected = "Rejected";
+
+        public const string StockZero = "0. Out of Stock";
+        public const string StockLow = "1. Low Stock";
+        public const string StockMid = "2. Medium Stock";
+        public const string StockHigh = "3. High Stock";
     }
 }

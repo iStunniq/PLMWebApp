@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using PLM.Utility;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -40,6 +41,7 @@ namespace PLM.Models
         [ValidateNever]
         public Brand Brand { get; set; }
         public int Stock { get; set; } = 0;
+        public string StockStat { get; set; } = SD.StockZero;
         public bool IsActive { get; set; } = true;
         public DateTime Inactivity { get; set; } = DateTime.Now;
 

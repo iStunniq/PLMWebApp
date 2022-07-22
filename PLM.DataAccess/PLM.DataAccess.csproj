@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PLM.Models\PLM.Models.csproj" />
+    <ProjectReference Include="..\PLM.Utility\PLM.Utility.csproj" />
   </ItemGroup>
 
 </Project>

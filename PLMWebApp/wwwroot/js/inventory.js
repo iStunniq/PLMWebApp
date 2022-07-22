@@ -13,6 +13,7 @@ function loadDataTable() {
         "columns": [
             { "data": "name", "width": "15%" },
             { "data": "stock", "width": "15%" },
+            { "data": "stockStat", "width": "15%"},
             { "data": "price", "width": "15%" },
             { "data": "brand.name", "width": "15%" },
             { "data": "category.name", "width": "15%" },
