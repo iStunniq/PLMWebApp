@@ -5,6 +5,7 @@
 }
 
 <form method="post">
+    <input asp-for="ReservationHeader.OrderTotal" id="total" hidden />
 	<br />
 	<div class="container">
 		<div class="card">
@@ -70,10 +71,28 @@
 			<div class="card-footer">
 				<div class="card-footer row">
 					<div class="col-sm-12 col-lg-4 col-md-6 offset-lg-8 offset-md-6 ">
-						<a asp-action="Summary" class="btn btn-success form-control">Summary</a>
+						<a asp-action="Summary" onclick="return ValidateInput()" class="btn btn-success form-control">Summary</a>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </form>
+
+@section Scripts{
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+        function ValidateInput() {
+            if (document.getElementById("total").value == 0) {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Add some items to your cart',
+                        text: 'Cannot place a reservation without any items'
+                    });
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

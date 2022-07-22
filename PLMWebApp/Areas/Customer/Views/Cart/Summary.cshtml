@@ -4,8 +4,11 @@
     ViewData["Title"] = "Reservation Summary";
 }
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" id="form">
 	<input asp-for="ReservationHeader.GCashImageUrl" hidden />
+	<input asp-for="ReservationHeader.TrackingNumber" id="otp" hidden/>
+	<input asp-for="ReservationHeader.ApplicationUserId" id="userId" hidden />
+	<input asp-for="ReservationHeader.OrderTotal" id="total" hidden />
 	<br />
 	<div class="container">
 		<div class="card">
@@ -145,9 +148,18 @@
 @section Scripts{
 	<partial name="_ValidationScriptsPartial" />
 	<script>
-		function ValidateInput(){
-            if (document.getElementById("uploadBox").value == "") 
-            {
+		async function ValidateInput(){
+			event.preventDefault()
+            if (document.getElementById("total").value == 0) {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Add some items to your cart',
+                        text: 'Cannot place a reservation without any items'
+                    });
+                return false;
+            }
+			if (document.getElementById("uploadBox").value == "") {
                 Swal.fire
                     ({
                         icon: 'error',
@@ -156,7 +168,34 @@
                     });
                 return false;
             }
-            return true;
+            $.ajax({
+				type: "GET",
+				url: "/Customer/Cart/SendOtp?id=" + document.getElementById("userId").value + "&otp=" + document.getElementById("otp").value,
+                success: function (data) {
+                    if (data.success) {
+                        toastr.success("OTP Sent");
+                    }
+                    else {
+                        toastr.error("Something went wrong");
+                    }
+                }
+			})
+            const { value: otpInput } = await Swal.fire({
+                title: 'Enter OTP',
+                input: 'text',
+                inputLabel: 'One-Time Password Sent to Email',
+                inputValue: "",
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (value != document.getElementById("otp").value) {
+                        return 'Wrong OTP';
+                    }
+                }
+            })
+
+            if (document.getElementById("otp").value == otpInput) {
+                document.getElementById("form").submit();
+            }
         }
 	</script>
 }
