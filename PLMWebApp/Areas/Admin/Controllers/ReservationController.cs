@@ -95,7 +95,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         }
         
         [HttpPost]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Courier)]
         [ValidateAntiForgeryToken]
         public IActionResult ToCourier()
         {
