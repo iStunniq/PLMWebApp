@@ -67,13 +67,17 @@ namespace PLMWebApp.Areas.Customer.Controllers
             };
 
             ShoppingCartVM.ReservationHeader.ApplicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
-
+            ShoppingCartVM.ReservationHeader.ApplicationUserId = ShoppingCartVM.ReservationHeader.ApplicationUser.Id;
             ShoppingCartVM.ReservationHeader.FirstName = ShoppingCartVM.ReservationHeader.ApplicationUser.FirstName;
             ShoppingCartVM.ReservationHeader.LastName = ShoppingCartVM.ReservationHeader.ApplicationUser.LastName;
             ShoppingCartVM.ReservationHeader.Phone = ShoppingCartVM.ReservationHeader.ApplicationUser.Phone;
             ShoppingCartVM.ReservationHeader.Address = ShoppingCartVM.ReservationHeader.ApplicationUser.Address;
             ShoppingCartVM.ReservationHeader.City = ShoppingCartVM.ReservationHeader.ApplicationUser.City;
             ShoppingCartVM.ReservationHeader.ZipCode = ShoppingCartVM.ReservationHeader.ApplicationUser.ZipCode;
+
+            Random random = new Random();
+            var randval = random.Next(10000,99999);
+            ShoppingCartVM.ReservationHeader.TrackingNumber = randval.ToString();
 
             foreach (var cart in ShoppingCartVM.ListCart)
             {
@@ -191,10 +195,16 @@ namespace PLMWebApp.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
         private double GetPriceBasedOnQuantity(double quantity, double price)
         {
             return price;
+        }
+
+        public IActionResult SendOtp(string id,string otp)
+        {
+            ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u=> u.Id == id);
+            _emailSender.SendEmailAsync(applicationUser.Email, "Your Reservation OTP! - Meatify", $"<p>Thank you for making a reservation, {applicationUser.FirstName}! Your OTP is {otp}.</p>");
+            return Json(new { success = true });
         }
     }
 }

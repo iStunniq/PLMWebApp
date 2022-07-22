@@ -16,12 +16,20 @@ namespace PLMWebApp.Areas.Admin.Controllers
     {
         //private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<IdentityUser> _userManager;
         [BindProperty]
         public ReservationVM ReservationVM { get; set; }
 
-        public ReservationController(IUnitOfWork unitOfWork)
+        public ReservationController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
+        }
+
+        public bool ValidateRole(string email, string role)
+        {
+            var user = _userManager.FindByEmailAsync(email).Result;
+            return _userManager.IsInRoleAsync(user, role).Result;
         }
 
         public IActionResult Index()
@@ -33,16 +41,15 @@ namespace PLMWebApp.Areas.Admin.Controllers
         {
 
             ReservationVM = new ReservationVM()
-            {
+            { 
                 ReservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == reservationId, includeProperties: "ApplicationUser"),
                 ReservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == reservationId, includeProperties: "Product"),
-                Carrier = _unitOfWork.ApplicationUser.GetAll().Select(i => new SelectListItem
+                Carrier = _unitOfWork.ApplicationUser.GetAll().Where(u=>ValidateRole(u.Email,SD.Role_Courier)).Select(i => new SelectListItem
                 {
                     Text = i.Email,
                     Value = i.Id.ToString()
                 })
             };
-
             return View(ReservationVM);
         }
 
@@ -154,7 +161,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Courier)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics)]
         [ValidateAntiForgeryToken]
         public IActionResult Pending()
         {
@@ -162,6 +169,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusPending;
+            reservationHeaderFromDb.Carrier = "";
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
@@ -191,9 +199,15 @@ namespace PLMWebApp.Areas.Admin.Controllers
         {
             IEnumerable<ReservationHeader> reservationHeaders;
 
-            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics))
             {
                 reservationHeaders = _unitOfWork.ReservationHeader.GetAll(includeProperties: "ApplicationUser");
+            }
+            else if (User.IsInRole(SD.Role_Courier))
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.ApplicationUserId == claim.Value || u.Carrier == claim.Value, includeProperties: "ApplicationUser");
             }
             else
             {

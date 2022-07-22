@@ -4,132 +4,123 @@
     ViewData["Title"] = "Reservation Summary";
 }
 
-<form method="post" enctype="multipart/form-data">
-    <input asp-for="ReservationHeader.GCashImageUrl" hidden />
-    <br />
-    <div class="container">
-        <div class="card">
-            <div class="card-header bg-primary text-light ml-0">
-                <div class=" row container">
-                    <div class="col-6">
-                        <i class="fa fa-shopping-cart"></i> &nbsp;
-                        Order Summary
-                    </div>
-                    <div class="col-6 text-end">
-                        <a asp-action="Index" class="btn btn-info btn-sm">Back to Reservation Cart</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="container rounded p-2">
-                    <div class="row">
-                        <div class="col-12 col-lg-6 pb-4">
-                            <div class="row">
-                                <h4 class="d-flex justify-content-between align-items-center mb-3">
-                                    <span class="text-info">Shipping Details:</span>
-                                </h4>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>First Name</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.FirstName" class="form-control" />
-                                    <span asp-validation-for="ReservationHeader.FirstName" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Last Name</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.LastName" class="form-control" />
-                                    <span asp-validation-for="ReservationHeader.LastName" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Phone</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.Phone" class="form-control" />
-                                    <span asp-validation-for="ReservationHeader.Phone" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Address</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.Address" class="form-control" />
-                                    <span asp-validation-for="ReservationHeader.Address" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>City</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.City" class="form-control" />
-                                    <span asp-validation-for="ReservationHeader.City" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Zip Code</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.ZipCode" class="form-control" />
-                                    <span asp-validation-for="ReservationHeader.ZipCode" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>COD Option</label>
-                                </div>
-                                <div class="col-9 mb-3">
-                                    <input type="checkbox" id="CODOption">
-                                    <span asp-validation-for="ReservationHeader.COD" class="text-danger"></span>
-                                </div>
-                            </div>
-
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>GCash Payment Image</label>
-                                </div>
-                                <div class="col-9 mb-3">
-                                    <h6>Meatify GCash #: 0956 430 6245</h6>
-                                    <h6>Meatify Client Name: Uriel A. Saraza</h6>
-                                    <input type="file" id="uploadBox" name="file" class="form-control">
-                                    <span asp-validation-for="ReservationHeader.GCashImageUrl" class="text-danger"></span>
-                                </div>
-                            </div>
-
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Preferred Delivery Date</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="ReservationHeader.PreferredDate" value="" class="form-control" type="datetime-local" />
-                                    <span asp-validation-for="ReservationHeader.PreferredDate" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-5 offset-lg-1">
-                            <h4 class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-info">Order Summary:</span>
-                            </h4>
-                            <ul class="list-group mb-3">
-                                @foreach (var details in Model.ListCart)
-                                {
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="my-0">@details.Product.Name</h6>
-                                            <small class="text-muted">Box Quantity: @details.Count</small>
-                                        </div>
-                                        <span class="text-muted">@((details.Price * details.Count).ToString("c"))</span>
-                                    </li>
-                                }
+<form method="post" enctype="multipart/form-data" id="form">
+	<input asp-for="ReservationHeader.GCashImageUrl" hidden />
+	<input asp-for="ReservationHeader.TrackingNumber" id="otp" hidden/>
+	<input asp-for="ReservationHeader.ApplicationUserId" id="userId" hidden />
+	<input asp-for="ReservationHeader.OrderTotal" id="total" hidden />
+	<br />
+	<div class="container">
+		<div class="card">
+			<div class="card-header bg-primary text-light ml-0">
+				<div class=" row container">
+					<div class="col-6">
+						<i class="fa fa-shopping-cart"></i> &nbsp;
+						Order Summary
+					</div>
+					<div class="col-6 text-end">
+						<a asp-action="Index" class="btn btn-info btn-sm">Back to Reservation Cart</a>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="container rounded p-2">
+					<div class="row">
+						<div class="col-12 col-lg-6 pb-4">
+							<div class="row">
+								<h4 class="d-flex justify-content-between align-items-center mb-3">
+									<span class="text-info">Shipping Details:</span>
+								</h4>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>First Name</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.FirstName" class="form-control" />
+									<span asp-validation-for="ReservationHeader.FirstName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Last Name</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.LastName" class="form-control" />
+									<span asp-validation-for="ReservationHeader.LastName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Phone</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.Phone" class="form-control" />
+									<span asp-validation-for="ReservationHeader.Phone" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Address</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.Address" class="form-control" />
+									<span asp-validation-for="ReservationHeader.Address" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>City</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.City" class="form-control" />
+									<span asp-validation-for="ReservationHeader.City" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Zip Code</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.ZipCode" class="form-control" />
+									<span asp-validation-for="ReservationHeader.ZipCode" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>GCash Payment Image</label>
+								</div>
+								<div class="col-9 mb-3">
+									<h6>Meatify GCash #: 0956 430 6245</h6>
+									<h6>Meatify Client Name: Uriel A. Saraza</h6>
+									<input type="file" id="uploadBox" name="file" class="form-control">
+									<span asp-validation-for="ReservationHeader.GCashImageUrl" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">
+									<label>Preferred Delivery Date</label>
+								</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.PreferredDate" value="" class="form-control" type="datetime-local" />
+									<span asp-validation-for="ReservationHeader.PreferredDate" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-lg-5 offset-lg-1">
+							<h4 class="d-flex justify-content-between align-items-center mb-3">
+								<span class="text-info">Order Summary:</span>
+							</h4>
+							<ul class="list-group mb-3">
+								@foreach(var details in Model.ListCart){
+									<li class="list-group-item d-flex justify-content-between">
+										<div>
+											<h6 class="my-0">@details.Product.Name</h6>
+											<small class="text-muted">Quantity: @details.Count</small>
+										</div>
+										<span class="text-muted">@((details.Price * details.Count).ToString("c"))</span>
+									</li>
+								}
 
                                 <li class="list-group-item d-flex justify-content-between bg-light">
                                     <small class="text-info">Total (PHP)</small>
@@ -155,10 +146,20 @@
 </form>
 
 @section Scripts{
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        function ValidateInput() {
-            if (document.getElementById("uploadBox").value == ""){
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		async function ValidateInput(){
+			event.preventDefault()
+            if (document.getElementById("total").value == 0) {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Add some items to your cart',
+                        text: 'Cannot place a reservation without any items'
+                    });
+                return false;
+            }
+			if (document.getElementById("uploadBox").value == "") {
                 Swal.fire
                     ({
                         icon: 'error',
@@ -167,7 +168,34 @@
                     });
                 return false;
             }
-            return true;
+            $.ajax({
+				type: "GET",
+				url: "/Customer/Cart/SendOtp?id=" + document.getElementById("userId").value + "&otp=" + document.getElementById("otp").value,
+                success: function (data) {
+                    if (data.success) {
+                        toastr.success("OTP Sent");
+                    }
+                    else {
+                        toastr.error("Something went wrong");
+                    }
+                }
+			})
+            const { value: otpInput } = await Swal.fire({
+                title: 'Enter OTP',
+                input: 'text',
+                inputLabel: 'One-Time Password Sent to Email',
+                inputValue: "",
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (value != document.getElementById("otp").value) {
+                        return 'Wrong OTP';
+                    }
+                }
+            })
+
+            if (document.getElementById("otp").value == otpInput) {
+                document.getElementById("form").submit();
+            }
         }
     </script>
 }

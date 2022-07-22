@@ -251,14 +251,19 @@
 
 								@if (Model.ReservationHeader.OrderStatus == SD.StatusApproval)
 								{
-									<input type="submit" asp-action="ShipOrder" class="btn btn-primary form-control my-1" value="Take Reservation" />
+									<input type="submit" asp-action="ShipOrder" class="btn btn-success form-control my-1" value="Take Reservation" />
 									<input type="submit" asp-action="RejectOrder" class="btn btn-primary form-control my-1" value="Reject Reservation" />
 								}
 
 								@if (Model.ReservationHeader.OrderStatus == SD.StatusShipped)
 								{
-									<input type="submit" asp-action="ToCourier" class="btn btn-primary form-control my-1" value="Undo Approval" />
 									<input type="submit" asp-action="Completed" class="btn btn-success form-control my-1" value="Completed" />
+									<input type="submit" asp-action="ToCourier" class="btn btn-primary form-control my-1" value="Undo Approval" />
+								}
+
+								@if (Model.ReservationHeader.OrderStatus == SD.StatusCompleted)
+								{
+									<input type="submit" asp-action="ShipOrder" class="btn btn-primary form-control my-1" value="Undo Completion" />
 								}
 								
 								@if (Model.ReservationHeader.OrderStatus != SD.StatusCancelled)
