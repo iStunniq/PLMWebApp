@@ -97,13 +97,16 @@ namespace PLMWebApp.Areas.Customer.Controllers
             ShoppingCartVM.ListCart = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value,
                 includeProperties: "Product");
 
-            
-
             ShoppingCartVM.ReservationHeader.PaymentStatus = SD.PaymentStatusPending;
             ShoppingCartVM.ReservationHeader.OrderStatus = SD.StatusPending;
             ShoppingCartVM.ReservationHeader.OrderDate = System.DateTime.Now;
             ShoppingCartVM.ReservationHeader.ShippingDate = ShoppingCartVM.ReservationHeader.PreferredDate;
             ShoppingCartVM.ReservationHeader.ApplicationUserId = claim.Value;
+
+            if (ShoppingCartVM.ReservationHeader.COD == true)
+            {
+                ShoppingCartVM.ReservationHeader.PaymentDueDate = ShoppingCartVM.ReservationHeader.PreferredDate;
+            }
 
             foreach (var cart in ShoppingCartVM.ListCart)
             {

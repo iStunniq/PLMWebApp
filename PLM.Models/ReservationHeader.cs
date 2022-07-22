@@ -39,7 +39,10 @@ namespace PLM.Models
         public DateTime PreferredDate { get; set; }
 
         [ValidateNever]
-        public string GCashImageUrl { get; set; }
+        public string? GCashImageUrl { get; set; }
+
+        [Display(Name = "Cash On Delivery")]
+        public bool COD { get; set; }
 
         [Required]
         [Display(Name = "First Name")]
