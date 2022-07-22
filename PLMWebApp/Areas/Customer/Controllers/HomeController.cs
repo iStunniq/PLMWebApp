@@ -20,14 +20,39 @@ public class HomeController : Controller
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
-        {
-        IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u=>u.IsActive,includeProperties:"Category,Brand");
-
+    public IActionResult Index(int? cid, int? bid)
+    {
+        if (cid != null && bid != null) {
+            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid).Where(u => u.CategoryId == cid);
+            return View(productList);
+        } else if (cid != null && bid == null) {
+            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.CategoryId == cid);
+            return View(productList);
+        } else if (cid == null && bid != null) {
+            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid);
+            return View(productList);
+        } else {
+            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0);
             return View(productList);
         }
+    }
 
         public IActionResult Details(int productId)
+        {
+        // ShoppingCart cartObj = new()
+        //{
+        //    Count = 1,
+        //    ProductId = productId,
+        //    Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
+        //};
+
+        var claimsIdentity = (ClaimsIdentity)User.Identity;
+
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(u => u.ApplicationUserId == claim.Value && u.ProductId == productId, includeProperties: "Product");
+
+        if (cartFromDb == null)
         {
             ShoppingCart cartObj = new()
             {
@@ -36,6 +61,10 @@ public class HomeController : Controller
                 Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
             };
             return View(cartObj);
+        }
+        cartFromDb.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand");
+        return View(cartFromDb);
+        
         }
 
         [HttpPost]
@@ -50,7 +79,7 @@ public class HomeController : Controller
 
             shoppingCart.ApplicationUserId = claim.Value;
 
-            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(u => u.ApplicationUserId == claim.Value && u.ProductId == shoppingCart.ProductId);
+            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(u => u.ApplicationUserId == claim.Value && u.ProductId == shoppingCart.ProductId,includeProperties:"Product");
 
             if (cartFromDb == null)
             {
@@ -58,7 +87,7 @@ public class HomeController : Controller
             }
             else
             {
-                _unitOfWork.ShoppingCart.IncrementCount(cartFromDb, shoppingCart.Count);
+                cartFromDb.Count = shoppingCart.Count;
             }
 
             

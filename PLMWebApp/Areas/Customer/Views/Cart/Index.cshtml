@@ -37,7 +37,7 @@
                             </div>
                             <div class="col-6 col-sm-4 col-lg-6 pt-2">
                                 <div class="w-75 btn-group" role="group">
-                                    <a asp-action="plus" asp-route-cartId="@item.Id" class="btn btn-primary">
+                                    <a asp-action="plus" onclick="return ValidateInput(@item.Count,@item.Product.Stock)" asp-route-cartId="@item.Id" class="btn btn-primary">
                                         <i class="bi bi-plus-square"></i>
                                     </a> &nbsp;
                                     <a asp-action="minus" asp-route-cartId="@item.Id" class="btn btn-dark">
@@ -82,13 +82,22 @@
 @section Scripts{
 	<partial name="_ValidationScriptsPartial" />
 	<script>
-        function ValidateInput() {
+        function ValidateInput(count,stock) {
             if (document.getElementById("total").value == 0) {
                 Swal.fire
                     ({
                         icon: 'error',
                         title: 'Add some items to your cart',
                         text: 'Cannot place a reservation without any items'
+                    });
+                return false;
+            }
+            if (count >= stock) {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Not Enough Stock',
+                        text: 'Cannot add more'
                     });
                 return false;
             }

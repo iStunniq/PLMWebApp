@@ -14,6 +14,7 @@ namespace PLM.Utility
         public const string Role_Logistics = "Logistics";
         public const string Role_Courier = "Courier";
         public const string Role_Admin = "Admin";
+        public const string Role_Operation = "Operations";
 
         public const string StatusPending = "Pending";
         public const string StatusInProcess = "Processing";
