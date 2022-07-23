@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PLM.DataAccess.Repository.IRepository;
 using PLM.Models;
 using PLM.Models.ViewModels;
+using PLM.Utility;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -22,19 +23,34 @@ public class HomeController : Controller
 
     public IActionResult Index(int? cid, int? bid)
     {
+        HomeVM homeVM = new();
         if (cid != null && bid != null) {
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid).Where(u => u.CategoryId == cid);
-            return View(productList);
+            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid).Where(u => u.CategoryId == cid);
         } else if (cid != null && bid == null) {
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.CategoryId == cid);
-            return View(productList);
+            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.CategoryId == cid);
         } else if (cid == null && bid != null) {
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid);
-            return View(productList);
+            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid);
         } else {
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0);
-            return View(productList);
+            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0);
         }
+        if (User.IsInRole(SD.Role_Courier)){
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.Carrier == claim.Value && u.OrderStatus == SD.StatusApproval).Count();
+        }
+        if (User.IsInRole(SD.Role_Sales))
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusPending).Count();
+        }
+        if (User.IsInRole(SD.Role_Logistics))
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusInProcess).Count();
+        }
+        return View(homeVM);
     }
 
         public IActionResult Details(int productId)
