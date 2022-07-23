@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PLM.DataAccess.Repository.IRepository;
 using PLM.Models;
@@ -12,13 +13,14 @@ namespace PLMWebApp.Controllers;
 public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IUnitOfWork _unitOfWork;
         
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, SignInManager<IdentityUser> signInManager)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _signInManager = signInManager;
         }
 
     public IActionResult Index(int? cid, int? bid)
@@ -62,13 +64,27 @@ public class HomeController : Controller
         //    Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
         //};
 
-        var claimsIdentity = (ClaimsIdentity)User.Identity;
+        if (_signInManager.IsSignedIn(User)){
 
-        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
 
-        ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(u => u.ApplicationUserId == claim.Value && u.ProductId == productId, includeProperties: "Product");
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-        if (cartFromDb == null)
+            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(u => u.ApplicationUserId == claim.Value && u.ProductId == productId, includeProperties: "Product");
+
+            if (cartFromDb == null)
+            {
+                ShoppingCart cartObj = new()
+                {
+                    Count = 1,
+                    ProductId = productId,
+                    Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
+                };
+                return View(cartObj);
+            }
+            cartFromDb.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand");
+            return View(cartFromDb);
+        } else
         {
             ShoppingCart cartObj = new()
             {
@@ -78,9 +94,6 @@ public class HomeController : Controller
             };
             return View(cartObj);
         }
-        cartFromDb.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand");
-        return View(cartFromDb);
-        
         }
 
         [HttpPost]
