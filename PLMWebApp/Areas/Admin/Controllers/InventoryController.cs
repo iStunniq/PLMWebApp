@@ -82,14 +82,6 @@ public class InventoryController : Controller
                 }
                 _unitOfWork.Save();
                 Product prod = _unitOfWork.Product.GetFirstOrDefault(u=>u.Id==obj.Product.Id);
-                IEnumerable<Batch> batches = _unitOfWork.Batch.GetAll(u => u.ProductId == prod.Id);
-                var stock = 0;
-                foreach (Batch batch in batches)
-                {
-                stock = stock + batch.Stock;
-                }
-                prod.Stock = stock;
-
             _unitOfWork.Product.Update(prod);
         _unitOfWork.Save();
 

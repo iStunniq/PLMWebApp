@@ -159,15 +159,17 @@
                     });
                 return false;
             }
+
 			if (document.getElementById("uploadBox").value == "") {
                 Swal.fire
-                    ({
+                    ({	
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Please upload GCash Payment Image'
                     });
                 return false;
             }
+
             $.ajax({
 				type: "GET",
 				url: "/Customer/Cart/SendOtp?id=" + document.getElementById("userId").value + "&otp=" + document.getElementById("otp").value,
@@ -177,9 +179,16 @@
                     }
                     else {
                         toastr.error("Something went wrong");
+						Swal.fire
+						({	
+							icon: 'error',
+							title: 'Conflicting Product Count Detected',
+							text: 'Please check your cart for available stock'
+						});
                     }
                 }
 			})
+
             const { value: otpInput } = await Swal.fire({
                 title: 'Enter OTP',
                 input: 'text',
@@ -194,7 +203,24 @@
             })
 
             if (document.getElementById("otp").value == otpInput) {
-                document.getElementById("form").submit();
+				$.ajax({
+					type: "GET",
+					url: "/Customer/Cart/ValidateStock",
+					success: function (data) {
+						if (data.success) {
+							document.getElementById("form").submit();
+						}
+						else {
+							toastr.error("Something went wrong");
+							Swal.fire
+							({	
+								icon: 'error',
+								title: 'Conflicting Product Count Detected',
+								text: 'Please check your cart for available stock'
+							});
+						}
+					}
+				})
             }
         }
     </script>

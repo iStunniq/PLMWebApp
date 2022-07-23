@@ -277,6 +277,13 @@
 									<input type="submit" asp-action="Pending" class="btn btn-danger form-control my-1" value="Return to Pending" />
 								}
 							}
+							@if(User.IsInRole(SD.Role_Customer))
+							{
+								@if (Model.ReservationHeader.OrderStatus == SD.StatusPending || Model.ReservationHeader.OrderStatus == SD.StatusInProcess || Model.ReservationHeader.OrderStatus == SD.StatusApproval)
+								{
+									<p>If you want to cancel order, use the contacts listed below</p>
+								}
+							}
 						</div>
 					</div>
 				</div>

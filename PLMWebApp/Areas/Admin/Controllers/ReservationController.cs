@@ -154,6 +154,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusCompleted;
+            reservationHeaderFromDb.ShippingDate = DateTime.Now;
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";

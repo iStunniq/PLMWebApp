@@ -147,6 +147,23 @@ namespace PLMWebApp.Areas.Customer.Controllers
                     Price = cart.Price,
                     Count = cart.Count
                 };
+
+                while (cart.Count > 0)
+                {
+                    Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == cart.ProductId);
+                    Batch batch = _unitOfWork.Batch.GetFirstOrDefault(u => u.ProductId == product.Id && u.Stock > 0);
+                    if (batch.Stock>= cart.Count)
+					{
+                        batch.Stock = batch.Stock - cart.Count;
+                        cart.Count = 0;
+					}else {
+                        cart.Count = cart.Count - batch.Stock;
+                        batch.Stock = 0;
+					}
+                    _unitOfWork.Save();
+                    _unitOfWork.Product.Update(product);
+                }
+
                 _unitOfWork.ReservationDetail.Add(reservationDetail);
                 _unitOfWork.Save();
             }
@@ -202,8 +219,41 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
         public IActionResult SendOtp(string id,string otp)
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            IEnumerable<ShoppingCart> ListCart = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value, includeProperties: "Product");
+
+            foreach (var item in ListCart)
+            {
+                Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == item.ProductId);
+                if (item.Count > product.Stock)
+                {
+                    return Json(new { success = false });
+                };
+            }
+
             ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u=> u.Id == id);
             _emailSender.SendEmailAsync(applicationUser.Email, "Your Reservation OTP! - Meatify", $"<p>Thank you for making a reservation, {applicationUser.FirstName}! Your OTP is {otp}.</p>");
+            return Json(new { success = true });
+        }
+        public IActionResult ValidateStock()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            IEnumerable<ShoppingCart> ListCart = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value, includeProperties: "Product");
+
+            foreach (var item in ListCart)
+            {
+                Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == item.ProductId);
+                if (item.Count > product.Stock)
+                {
+                    return Json(new { success = false });
+                };
+            }
             return Json(new { success = true });
         }
     }

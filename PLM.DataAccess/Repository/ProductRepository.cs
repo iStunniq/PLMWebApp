@@ -28,6 +28,12 @@ namespace PLM.DataAccess.Repository
                 objFromDb.Price = obj.Price;
                 objFromDb.CategoryId = obj.CategoryId;
                 objFromDb.BrandId = obj.BrandId;
+                IEnumerable<Batch> batches = _db.Batches.Where(u => u.ProductId == obj.Id).ToList();
+                obj.Stock = 0;
+                foreach (Batch batch in batches)
+                {
+                    obj.Stock = obj.Stock + batch.Stock;
+                };
                 objFromDb.Stock = obj.Stock;
                 if (obj.Stock == 0)
                 {
