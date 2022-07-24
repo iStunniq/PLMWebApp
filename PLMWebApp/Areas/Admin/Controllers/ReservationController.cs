@@ -100,6 +100,12 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the In Process tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll(u => ValidateRole(u.Email, SD.Role_Logistics));
+            foreach(var man in logEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Pst, new process", $"dude, there's an order for order number {ReservationVM.ReservationHeader.Id}");
+            };
+
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
         
@@ -114,6 +120,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             reservationHeaderFromDb.OrderStatus = SD.StatusApproval;
             reservationHeaderFromDb.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
             reservationHeaderFromDb.Carrier = ReservationVM.ReservationHeader.Carrier;
+            ApplicationUser carrier = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Carrier);
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
 
@@ -121,6 +128,8 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation is for Approval! - Meatify", $"<p><h3>Your reservation is for approval, {reservationHeader.ApplicationUser.FirstName}! " +
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Approval tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
+
+            _emailSender.SendEmailAsync(carrier.Email, "Pst, new process", $"dude, there's an order for order number {ReservationVM.ReservationHeader.Id}");
 
             TempData["Success"] = "Reservation Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
