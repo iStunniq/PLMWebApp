@@ -20,10 +20,10 @@ namespace PLM.Models
         public ReservationHeader ReservationHeader { get; set; }
 
         [Required]
-        public int ProductId { get; set; }
-        [ForeignKey("ProductId")]
+        public int BatchId { get; set; }
+        [ForeignKey("BatchId")]
         [ValidateNever]
-        public Product Product { get; set; }
+        public Batch Batch { get; set; }
 
         public int Count { get; set; }
 

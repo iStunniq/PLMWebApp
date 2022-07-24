@@ -215,9 +215,10 @@
 									<li class="list-group-item d-flex justify-content-between p-2">
 										<div class="row container">
 											<div class="col-8">
-												<h6 class="my-0 text-primary">@detail.Product.Name</h6>
-												<small class="text-muted"> Price : @detail.Product.Price.ToString("c") </small><br />
-												<small class="text-muted"> Quantity : @detail.Count </small>
+												<h6 class="my-0 text-primary">@detail.Batch.Product.Name</h6>
+												<small class="text-muted"> Price : @detail.Batch.Product.Price.ToString("c") </small><br />
+												<small class="text-muted"> Quantity : @detail.Count </small><br />
+												<small class="text-muted"> Batch No. : @detail.Batch.Id </small>
 											</div>
 											<div class="col-4 text-end">
 												<p class="text-success"> @((detail.Count * detail.Price).ToString("c")) </p>
@@ -272,7 +273,7 @@
 									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
 								}
 
-								@if (Model.ReservationHeader.OrderStatus != SD.StatusPending)
+								@if (Model.ReservationHeader.OrderStatus != SD.StatusPending && Model.ReservationHeader.OrderStatus != SD.StatusCancelled)
 								{
 									<input type="submit" asp-action="Pending" class="btn btn-danger form-control my-1" value="Return to Pending" />
 								}

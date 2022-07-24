@@ -43,7 +43,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             ReservationVM = new ReservationVM()
             { 
                 ReservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == reservationId, includeProperties: "ApplicationUser"),
-                ReservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == reservationId, includeProperties: "Product"),
+                ReservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == reservationId, includeProperties: "Batch,Batch.Product"),
                 Carrier = _unitOfWork.ApplicationUser.GetAll().Where(u=>ValidateRole(u.Email,SD.Role_Courier)).Select(i => new SelectListItem
                 {
                     Text = i.Email,
@@ -183,9 +183,14 @@ namespace PLMWebApp.Areas.Admin.Controllers
         public IActionResult CancelOrder(IFormFile file)
         {
             var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
-
+            IEnumerable<ReservationDetail> reservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == ReservationVM.ReservationHeader.Id, includeProperties:"Batch,Batch.Product");
             reservationHeader.OrderStatus = SD.StatusCancelled;
             reservationHeader.PaymentStatus = SD.PaymentStatusRefunded;
+
+            foreach (ReservationDetail detail in reservationDetail) {
+                detail.Batch.Stock += detail.Count;
+                _unitOfWork.Product.Update(detail.Batch.Product);
+            };
 
             _unitOfWork.ReservationHeader.Update(reservationHeader);
 
@@ -200,7 +205,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         {
             IEnumerable<ReservationHeader> reservationHeaders;
 
-            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics))
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Operation))
             {
                 reservationHeaders = _unitOfWork.ReservationHeader.GetAll(includeProperties: "ApplicationUser");
             }

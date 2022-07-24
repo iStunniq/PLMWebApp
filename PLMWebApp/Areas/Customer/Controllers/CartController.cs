@@ -112,6 +112,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
                 ShoppingCartVM.ReservationHeader.PaymentDueDate = ShoppingCartVM.ReservationHeader.PreferredDate;
             }
 
+            ShoppingCartVM.ReservationHeader.OrderTotal = 0;
             foreach (var cart in ShoppingCartVM.ListCart)
             {
                 cart.Price = GetPriceBasedOnQuantity(cart.Count, cart.Product.Price);
@@ -134,37 +135,43 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
             }
 
-            
             _unitOfWork.ReservationHeader.Add(ShoppingCartVM.ReservationHeader);
             _unitOfWork.Save();
             
             foreach (var cart in ShoppingCartVM.ListCart)
             {
-                ReservationDetail reservationDetail = new()
-                {
-                    ProductId = cart.ProductId,
-                    OrderId = ShoppingCartVM.ReservationHeader.Id,
-                    Price = cart.Price,
-                    Count = cart.Count
-                };
-
                 while (cart.Count > 0)
                 {
-                    Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == cart.ProductId);
-                    Batch batch = _unitOfWork.Batch.GetFirstOrDefault(u => u.ProductId == product.Id && u.Stock > 0);
-                    if (batch.Stock>= cart.Count)
-					{
+                    Batch batch = _unitOfWork.Batch.GetFirstOrDefault(u => u.ProductId == cart.ProductId && u.Stock > 0);
+                    if (batch.Stock >= cart.Count)
+                    {
+                        ReservationDetail reservationDetail = new()
+                        {
+                            BatchId = batch.Id,
+                            OrderId = ShoppingCartVM.ReservationHeader.Id,
+                            Price = GetPriceBasedOnQuantity(cart.Count,cart.Product.Price),
+                            Count = cart.Count
+                        };
                         batch.Stock = batch.Stock - cart.Count;
                         cart.Count = 0;
-					}else {
+                        _unitOfWork.ReservationDetail.Add(reservationDetail);
+                    }
+                    else
+                    {
+                        ReservationDetail reservationDetail = new()
+                        {
+                            BatchId = batch.Id,
+                            OrderId = ShoppingCartVM.ReservationHeader.Id,
+                            Price = GetPriceBasedOnQuantity(batch.Stock, cart.Product.Price),
+                            Count = batch.Stock
+                        };
                         cart.Count = cart.Count - batch.Stock;
                         batch.Stock = 0;
-					}
+                        _unitOfWork.ReservationDetail.Add(reservationDetail);
+                    }
                     _unitOfWork.Save();
-                    _unitOfWork.Product.Update(product);
                 }
-
-                _unitOfWork.ReservationDetail.Add(reservationDetail);
+                _unitOfWork.Product.Update(cart.Product);
                 _unitOfWork.Save();
             }
 

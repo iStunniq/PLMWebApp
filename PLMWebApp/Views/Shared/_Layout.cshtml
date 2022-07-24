@@ -45,7 +45,7 @@
                             </li>*@
                             
                             <li class="nav-item dropdown">
-                            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Logistics))
+                            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Operation))
                                 {
                                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Management</a>
                                 }

@@ -11,7 +11,7 @@ using PLM.Utility;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-[Authorize(Roles = SD.Role_Admin)]
+[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Operation)]
 public class InventoryController : Controller
     {
     private readonly IUnitOfWork _unitOfWork;
