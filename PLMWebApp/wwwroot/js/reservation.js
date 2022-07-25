@@ -45,17 +45,28 @@ function loadDataTable(status) {
             { "data": "phone", "width": "15%" },
             { "data": "applicationUser.email", "width": "15%" },
             { "data": "orderStatus", "width": "15%" },
-            { "data": "orderTotal", "width": "10%" },
+            { "data": "lastName", "width": "10%" },
             {
                 "data": "id",
-                "render": function (data) {
-                    return `
+                "render": function (data,type,row) {
+                    if (row["viewed"]) {
+                        return `
                         <div class="w-75 btn-group" role="group">
                             <a href="/Admin/Reservation/Details?reservationId=${data}" class="btn btn-info mx-2"> 
-                                <i class="bi bi-pencil-square"> </i> Details 
+                                <i class="bi bi-pencil-square"> </i> Check Details
                             </a>
                         </div>
                         `
+                    }
+                    else {
+                        return `
+                        <div class="w-75 btn-group" role="group">
+                            <a href="/Admin/Reservation/Details?reservationId=${data}" class="btn btn-success mx-2"> 
+                                <i class="bi bi-plus"> </i> New
+                            </a>
+                        </div>
+                        `
+                    }
                 },
                 "width": "5%"
             }

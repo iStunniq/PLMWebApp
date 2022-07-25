@@ -22,7 +22,9 @@ namespace PLM.DataAccess.Repository.IRepository
 
         IReservationHeaderRepository ReservationHeader { get; }
 
-        IReservationDetailRepository ReservationDetail { get; } 
+        IReservationDetailRepository ReservationDetail { get; }
+
+        IReservationViewedRepository ReservationViewed { get; }
 
         ISalesReportRepository SalesReport { get; }
 

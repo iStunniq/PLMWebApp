@@ -56,23 +56,13 @@ public class HomeController : Controller
             Value = i.Id.ToString()
         }) ;
 
+        if (_signInManager.IsSignedIn(User))
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
 
-        if (User.IsInRole(SD.Role_Courier)){
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.Carrier == claim.Value && u.OrderStatus == SD.StatusApproval).Count();
-        }
-        if (User.IsInRole(SD.Role_Sales))
-        {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusPending).Count();
-        }
-        if (User.IsInRole(SD.Role_Logistics))
-        {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusInProcess).Count();
+            homeVM.Alert = _unitOfWork.ReservationViewed.GetAll(u => u.AlertEmail == user.Email).Count();
         }
         return View(homeVM);
     }

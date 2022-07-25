@@ -69,5 +69,7 @@ namespace PLM.Models
 
         public string? CancelReason { get; set; }
 
+        public bool? Viewed { get; set; }
+
     }
 }

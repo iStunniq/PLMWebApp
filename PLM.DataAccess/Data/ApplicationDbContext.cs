@@ -24,5 +24,7 @@ namespace PLM.DataAccess
         public DbSet<ReservationHeader> ReservationHeaders { get; set; }
 
         public DbSet<ReservationDetail> ReservationDetails { get; set; }
+        
+        public DbSet<ReservationViewed> ReservationViews { get; set; }
     }
 }

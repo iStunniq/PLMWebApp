@@ -7,6 +7,7 @@ using PLM.Utility;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace PLMWebApp.Areas.Customer.Controllers
 {
@@ -17,18 +18,24 @@ namespace PLMWebApp.Areas.Customer.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IEmailSender _emailSender;
+        private readonly UserManager<IdentityUser> _userManager;
 
 
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
-        
-        public int OrderTotal { get; set; }
-        
-        public CartController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment, IEmailSender emailSender)
+
+        public bool ValidateRole(string email, string role)
+        {
+            var user = _userManager.FindByEmailAsync(email).Result;
+            return _userManager.IsInRoleAsync(user, role).Result;
+        }
+
+        public CartController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment, IEmailSender emailSender, UserManager<IdentityUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
             _emailSender = emailSender;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -137,6 +144,15 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
             _unitOfWork.ReservationHeader.Add(ShoppingCartVM.ReservationHeader);
             _unitOfWork.Save();
+
+            IEnumerable<ApplicationUser> SalesEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
+            foreach (var man in SalesEmployees)
+            {
+                ReservationViewed view = new();
+                view.OrderId = ShoppingCartVM.ReservationHeader.Id;
+                view.AlertEmail = man.Email;
+                _unitOfWork.ReservationViewed.Add(view);
+            }
             
             foreach (var cart in ShoppingCartVM.ListCart)
             {
