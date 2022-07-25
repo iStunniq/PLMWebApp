@@ -236,8 +236,12 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
             foreach (var item in ListCart)
             {
-                Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == item.ProductId);
+                Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == item.ProductId, includeProperties: ("Brand,Category"));
                 if (item.Count > product.Stock)
+                {
+                    return Json(new { success = false });
+                };
+                if (!product.IsActive || !product.Brand.IsActive || !product.Category.IsActive)
                 {
                     return Json(new { success = false });
                 };
@@ -257,8 +261,12 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
             foreach (var item in ListCart)
             {
-                Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == item.ProductId);
+                Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == item.ProductId,includeProperties:("Brand,Category"));
                 if (item.Count > product.Stock)
+                {
+                    return Json(new { success = false });
+                };
+                if (!product.IsActive || !product.Brand.IsActive || !product.Category.IsActive)
                 {
                     return Json(new { success = false });
                 };

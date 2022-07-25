@@ -67,5 +67,7 @@ namespace PLM.Models
         [Display(Name = "Zip Code")]
         public string ZipCode { get; set; }
 
+        public string? CancelReason { get; set; }
+
     }
 }

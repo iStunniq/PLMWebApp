@@ -4,7 +4,7 @@
 	ViewData["Title"] = "Reservation Summary";
 }
 
-<form method="post" asp-action="CancelOrder" enctype="multipart/form-data">
+<form method="post" id="form" asp-action="CancelOrder" enctype="multipart/form-data">
 	<input asp-for="ReservationHeader.Id" hidden/>
 	<br />
 	<div class="container">
@@ -207,7 +207,10 @@
 								<span class="text-primary">Reservation Summary</span>
 							</h4>
 							<label class="btn btn-outline-primary form-control my-2">Reservation Status - @Model.ReservationHeader.OrderStatus </label>
-
+							@if (Model.ReservationHeader.OrderStatus == SD.StatusCancelled)
+							{
+								<label class="btn btn-outline-primary form-control my-2">Reason for Cancel - @Model.ReservationHeader.CancelReason </label>
+							}
 							<ul class="list-group mb-3">
 
 								@foreach (var detail in Model.ReservationDetail)
@@ -270,7 +273,8 @@
 								
 								@if (Model.ReservationHeader.OrderStatus != SD.StatusCancelled)
 								{
-									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
+									<input id="canres" asp-for="ReservationHeader.CancelReason" hidden/>
+									<input type="submit" onclick="return AddReason()" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
 								}
 
 								@if (Model.ReservationHeader.OrderStatus != SD.StatusPending && Model.ReservationHeader.OrderStatus != SD.StatusCancelled)
@@ -309,5 +313,37 @@
             }
             return true;
         }
+	</script>
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		async function AddReason() {
+			event.preventDefault()
+
+			const { value: CanRes } = await Swal.fire({
+                title: 'Cancel Reason',
+                input: 'text',
+                inputLabel: 'Enter a cancellation reason',
+                inputValue: "",
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please write a reason';
+                    } else {
+                        document.getElementById("canres").value = value;
+                        var form = document.getElementById("form");
+                        var formdata = $(form).serialize();
+
+						$.ajax({
+							url: "/Admin/Reservation/CancelOrder",
+							type:'POST',
+							data: formdata,
+							success: function(result){
+								location.reload()
+							}
+						});
+					}
+                }
+            })
+		}
 	</script>
 }

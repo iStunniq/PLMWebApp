@@ -100,7 +100,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the In Process tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
-            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll(u => ValidateRole(u.Email, SD.Role_Logistics));
+            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
             foreach(var man in logEmployees)
             {
                 _emailSender.SendEmailAsync(man.Email, "Pst, new process", $"dude, there's an order for order number {ReservationVM.ReservationHeader.Id}");
@@ -222,6 +222,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             IEnumerable<ReservationDetail> reservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == ReservationVM.ReservationHeader.Id, includeProperties:"Batch,Batch.Product");
             reservationHeader.OrderStatus = SD.StatusCancelled;
             reservationHeader.PaymentStatus = SD.PaymentStatusRefunded;
+            reservationHeader.CancelReason = ReservationVM.ReservationHeader.CancelReason;
 
             foreach (ReservationDetail detail in reservationDetail) {
                 detail.Batch.Stock += detail.Count;

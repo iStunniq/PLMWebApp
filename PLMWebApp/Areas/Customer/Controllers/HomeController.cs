@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PLM.DataAccess.Repository.IRepository;
 using PLM.Models;
 using PLM.Models.ViewModels;
@@ -23,18 +24,39 @@ public class HomeController : Controller
             _signInManager = signInManager;
         }
 
-    public IActionResult Index(int? cid, int? bid)
+    public IActionResult Index(int? cid, int? bid, int? min, int? max)
     {
         HomeVM homeVM = new();
-        if (cid != null && bid != null) {
-            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid).Where(u => u.CategoryId == cid);
-        } else if (cid != null && bid == null) {
-            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.CategoryId == cid);
-        } else if (cid == null && bid != null) {
-            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0).Where(u => u.BrandId == bid);
-        } else {
-            homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0);
+        homeVM.Products = _unitOfWork.Product.GetAll(u => u.IsActive && u.Brand.IsActive && u.Category.IsActive, includeProperties: "Category,Brand").Where(u => u.Stock > 0);
+        if (cid != null && cid != 0)
+        {
+            homeVM.Products = homeVM.Products.Where(u => u.CategoryId == cid);
         }
+        if (bid != null && bid != 0)
+        {
+            homeVM.Products = homeVM.Products.Where(u => u.BrandId == bid);
+        }
+        if (min != null)
+        {
+            homeVM.Products = homeVM.Products.Where(u => u.Price >= min);
+        }
+        if (max != null)
+        {
+            homeVM.Products = homeVM.Products.Where(u => u.Price <= max);
+        }
+
+        homeVM.CategoryList = _unitOfWork.Category.GetAll(u => u.IsActive).Select(i => new SelectListItem
+        {
+            Text = i.Name,
+            Value = i.Id.ToString()
+        });
+        homeVM.BrandList = _unitOfWork.Brand.GetAll(u => u.IsActive).Select(i => new SelectListItem
+        {
+            Text = i.Name,
+            Value = i.Id.ToString()
+        }) ;
+
+
         if (User.IsInRole(SD.Role_Courier)){
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -53,6 +75,13 @@ public class HomeController : Controller
             homeVM.Alert = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusInProcess).Count();
         }
         return View(homeVM);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Index(HomeVM obj)
+    {
+        return RedirectToAction("Index", new { cid = obj.CategoryId, bid = obj.BrandId, min=obj.MinPrice,max=obj.MaxPrice });
     }
 
         public IActionResult Details(int productId)

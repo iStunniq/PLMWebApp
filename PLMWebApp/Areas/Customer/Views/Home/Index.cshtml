@@ -30,6 +30,35 @@
 
 
 <div class="row pb-3">
+    <form method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-12">
+                <div class="p-3 mt-4 row">
+                    <div class="col-3">
+                        @*<div asp-validation-summary="All"></div>*@
+                        <select asp-for="CategoryId" asp-items="@Model.CategoryList" class="form-select">
+                            <option disabled selected>--Select Category--</option>
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        @*<div asp-validation-summary="All"></div>*@
+                        <select asp-for="BrandId" asp-items="@Model.BrandList" class="form-select">
+                            <option disabled selected>--Select Brand--</option>
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <input asp-for="MinPrice" placeholder="Minimum Price" style="width: 95%;margin:auto"/>
+                        <span asp-validation-for="MinPrice" class="text-danger"></span>
+                        <input asp-for="MaxPrice" placeholder="Maximum Price" style="width: 95%;margin:auto"/>
+                        <span asp-validation-for="MaxPrice" class="text-danger"></span>
+                    </div>
+                    <div class="col-3">
+                        <button type="submit" class="btn btn-primary" style="width: 95%;margin:auto">Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
     @foreach (var product in Model.Products)
     {
         <div class="col-lg-3 col-md-6">

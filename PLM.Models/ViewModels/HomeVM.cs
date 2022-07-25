@@ -19,5 +19,10 @@ namespace PLM.Models.ViewModels
 
         [ValidateNever]
         public IEnumerable<SelectListItem>? BrandList { get; set; }
+        public int? CategoryId { get; set; }
+        public int? BrandId { get; set; }
+        public int? MinPrice { get; set; }
+        public int? MaxPrice { get; set; }
+
     }
 }
