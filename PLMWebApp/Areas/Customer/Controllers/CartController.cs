@@ -107,11 +107,6 @@ namespace PLMWebApp.Areas.Customer.Controllers
             ShoppingCartVM.ReservationHeader.ShippingDate = ShoppingCartVM.ReservationHeader.PreferredDate;
             ShoppingCartVM.ReservationHeader.ApplicationUserId = claim.Value;
 
-            if (ShoppingCartVM.ReservationHeader.COD == true)
-            {
-                ShoppingCartVM.ReservationHeader.PaymentDueDate = ShoppingCartVM.ReservationHeader.PreferredDate;
-            }
-
             ShoppingCartVM.ReservationHeader.OrderTotal = 0;
             foreach (var cart in ShoppingCartVM.ListCart)
             {
@@ -120,7 +115,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
             }
 
             string wwwRootPath = _hostEnvironment.WebRootPath;
-            if (file != null)
+            if (file != null && !ShoppingCartVM.ReservationHeader.COD)
             {
                 ShoppingCartVM.ReservationHeader.PaymentDate = System.DateTime.Now;
                 string fileName = Guid.NewGuid().ToString();
@@ -132,7 +127,12 @@ namespace PLMWebApp.Areas.Customer.Controllers
                     file.CopyTo(fileStreams);
                 }
                 ShoppingCartVM.ReservationHeader.GCashImageUrl = @"\images\gcash\" + fileName + extension;
+            }
 
+            if (ShoppingCartVM.ReservationHeader.COD)
+            {
+                ShoppingCartVM.ReservationHeader.PaymentDueDate = ShoppingCartVM.ReservationHeader.PreferredDate;
+                ShoppingCartVM.ReservationHeader.GCashImageUrl = @"\images\CODDefault.png";
             }
 
             _unitOfWork.ReservationHeader.Add(ShoppingCartVM.ReservationHeader);

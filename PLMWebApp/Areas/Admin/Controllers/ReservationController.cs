@@ -91,6 +91,10 @@ namespace PLMWebApp.Areas.Admin.Controllers
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusInProcess;
             reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusApproved;
+            if (reservationHeaderFromDb.COD)
+            {
+                reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusDelayedPayment;
+            }
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
@@ -185,6 +189,11 @@ namespace PLMWebApp.Areas.Admin.Controllers
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusCompleted;
             reservationHeaderFromDb.ShippingDate = DateTime.Now;
+            if (reservationHeaderFromDb.COD)
+            {
+                reservationHeaderFromDb.PaymentDate = DateTime.Now;
+                reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusApproved;
+            }
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
 
             ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
@@ -219,9 +228,12 @@ namespace PLMWebApp.Areas.Admin.Controllers
         public IActionResult CancelOrder(IFormFile file)
         {
             var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
-            IEnumerable<ReservationDetail> reservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == ReservationVM.ReservationHeader.Id, includeProperties:"Batch,Batch.Product");
+            IEnumerable<ReservationDetail> reservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == ReservationVM.ReservationHeader.Id, includeProperties: "Batch,Batch.Product");
             reservationHeader.OrderStatus = SD.StatusCancelled;
             reservationHeader.PaymentStatus = SD.PaymentStatusRefunded;
+            if (reservationHeader.COD) { 
+                reservationHeader.PaymentStatus = SD.PaymentStatusRejected;
+            };
             reservationHeader.CancelReason = ReservationVM.ReservationHeader.CancelReason;
 
             foreach (ReservationDetail detail in reservationDetail) {
