@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PLM.DataAccess.Repository;
+using PLM.DataAccess.Repository.IRepository;
+using PLM.Models;
 
 namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
 {
@@ -16,13 +19,16 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IUnitOfWork _unitOfWork;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -57,21 +63,39 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            /// 
+            [Display(Name = "First Name")]
+            public string Fname { get; set; }
+            [Display(Name = "Last Name")]
+            public string Lname { get; set; }
             [Phone]
             [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
+            public string Phone { get; set; }
+
+            [Display(Name = "Address")]
+            public string Address { get; set; }
+            [Display(Name = "City")]
+            public string City { get; set; }
+            [Display(Name = "Zip Code")]
+            public string Zip { get; set; }
+
         }
 
         private async Task LoadAsync(IdentityUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == user.Id);
 
             Username = userName;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                Fname = applicationUser.FirstName,
+                Lname = applicationUser.LastName,
+                Phone = applicationUser.Phone,
+                Address = applicationUser.Address,
+                City = applicationUser.City,
+                Zip = applicationUser.ZipCode
             };
         }
 
@@ -90,6 +114,7 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
         public async Task<IActionResult> OnPostAsync()
         {
             var user = await _userManager.GetUserAsync(User);
+            ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == user.Id);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -101,16 +126,13 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
-                }
-            }
+            applicationUser.FirstName = Input.Fname;
+            applicationUser.LastName = Input.Lname;
+            applicationUser.Phone = Input.Phone;
+            applicationUser.Address = Input.Address;
+            applicationUser.City = Input.City;
+            applicationUser.ZipCode = Input.Zip;
+            _unitOfWork.Save();
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
