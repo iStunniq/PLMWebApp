@@ -22,6 +22,7 @@ namespace PLM.DataAccess.Repository
             ShoppingCart = new ShoppingCartRepository(_db);
             ReservationHeader = new ReservationHeaderRepository(_db);
             ReservationDetail = new ReservationDetailRepository(_db);
+            SalesReport = new SalesReportRepository(_db);
         }
 
 
@@ -40,6 +41,8 @@ namespace PLM.DataAccess.Repository
         public IReservationHeaderRepository ReservationHeader { get; private set; }
 
         public IReservationDetailRepository ReservationDetail { get; private set; }
+
+        public ISalesReportRepository SalesReport { get; private set; }
 
         public void Save()
         {

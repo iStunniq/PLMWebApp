@@ -19,6 +19,8 @@ namespace PLM.DataAccess
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
+        public DbSet<SalesReport> SalesReports { get; set; }
+
         public DbSet<ReservationHeader> ReservationHeaders { get; set; }
 
         public DbSet<ReservationDetail> ReservationDetails { get; set; }

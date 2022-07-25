@@ -24,6 +24,8 @@ namespace PLM.DataAccess.Repository.IRepository
 
         IReservationDetailRepository ReservationDetail { get; } 
 
+        ISalesReportRepository SalesReport { get; }
+
         void Save();
     }
 }
