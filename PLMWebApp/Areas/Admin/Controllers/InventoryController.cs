@@ -2,24 +2,35 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PLM.DataAccess;
 using PLM.DataAccess.Repository.IRepository;
-using Microsoft.AspNetCore.Hosting; 
+using Microsoft.AspNetCore.Hosting;
 using PLM.Models;
 using PLM.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using PLM.Utility;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
 [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Operation)]
 public class InventoryController : Controller
-    {
+{
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _hostEnvironment;
-    public InventoryController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
+    private readonly IEmailSender _emailSender;
+    private readonly UserManager<IdentityUser> _userManager;
+    public InventoryController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment, UserManager<IdentityUser> userManager, IEmailSender emailSender)
     {
         _unitOfWork = unitOfWork;
         _hostEnvironment = hostEnvironment;
+        _userManager = userManager;
+        _emailSender = emailSender;
+    }
+
+    public bool ValidateRole(string email, string role)
+    {
+        var user = _userManager.FindByEmailAsync(email).Result;
+        return _userManager.IsInRoleAsync(user, role).Result;
     }
 
     public IActionResult Index()
@@ -44,67 +55,79 @@ public class InventoryController : Controller
     }
 
     //GET
-    public IActionResult Upsert(int prodid,int? batchid)
-        {
+    public IActionResult Upsert(int prodid, int? batchid)
+    {
         InventoryVM inventoryVM = new()
         {
             Product = new(),
             Batch = new()
         };
-            if (batchid==null || batchid == 0)
-            {
-                inventoryVM.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == prodid);
-                return View(inventoryVM);
-            }
-            else
-            {
-                inventoryVM.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == prodid);
-                inventoryVM.Batch = _unitOfWork.Batch.GetFirstOrDefault(u => u.Id == batchid);
-                //Update Product
-                return View(inventoryVM);
-            }
-        }
-
-        //POST
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Upsert(InventoryVM obj)
+        if (batchid == null || batchid == 0)
         {
-                if (obj.Batch.Id == 0)
-                {
-                    _unitOfWork.Batch.Add(obj.Batch);
-                    TempData["Success"] = "Batch Created Successfully";
-                }
-                else
-                {
-                    _unitOfWork.Batch.Update(obj.Batch);
-                    TempData["Success"] = "Batch Updated Successfully";
-                }
-                _unitOfWork.Save();
-                Product prod = _unitOfWork.Product.GetFirstOrDefault(u=>u.Id==obj.Product.Id);
-            _unitOfWork.Product.Update(prod);
+            inventoryVM.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == prodid);
+            return View(inventoryVM);
+        }
+        else
+        {
+            inventoryVM.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == prodid);
+            inventoryVM.Batch = _unitOfWork.Batch.GetFirstOrDefault(u => u.Id == batchid);
+            //Update Product
+            return View(inventoryVM);
+        }
+    }
+
+    //POST
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Upsert(InventoryVM obj)
+    {
+        if (obj.Batch.Id == 0)
+        {
+            _unitOfWork.Batch.Add(obj.Batch);
+            TempData["Success"] = "Batch Created Successfully";
+            IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
+
+            foreach (var man in opeEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, $"New Batch for {obj.Product.Name} - Meatify", $"<p><h4>{man.FirstName}, please check inventory for Product: <i>{obj.Product.Name}</i>. A new batch has been added, and it's Stock is equal to: {obj.Batch.Stock}. Thank you!</h4></p>");
+            };
+        }
+        else
+        {
+            _unitOfWork.Batch.Update(obj.Batch);
+            TempData["Success"] = "Batch Updated Successfully";
+            IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
+
+            foreach (var man in opeEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, $"Updated Batch for {obj.Product.Name} - Meatify", $"<p><h4>{man.FirstName}, please check inventory for Product: <i>{obj.Product.Name}</i>, Batch ID: {obj.Batch.Id}. It was recently updated, and this batch's Stock is now equal to: {obj.Batch.Stock}. Thank you!</h4></p>");
+            };
+        }
+        _unitOfWork.Save();
+        Product prod = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == obj.Product.Id);
+        _unitOfWork.Product.Update(prod);
         _unitOfWork.Save();
 
-        return RedirectToAction("Batches",new {prod.Id});
-        }
+        return RedirectToAction("Batches", new { prod.Id });
+    }
 
-        //GET
-        //public IActionResult Delete(int? id)
-        //{
-        //    if (id == null || id == 0)
-        //    {
-        //        return NotFound();
-        //    }
+    //GET
+    //public IActionResult Delete(int? id)
+    //{
+    //    if (id == null || id == 0)
+    //    {
+    //        return NotFound();
+    //    }
 
-        //    var productFromDbFirst = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == id);
+    //    var productFromDbFirst = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == id);
 
-        //    if (productFromDbFirst == null)
-        //    {
-        //        return NotFound();
-        //    }
+    //    if (productFromDbFirst == null)
+    //    {
+    //        return NotFound();
+    //    }
 
-        //    return View(productFromDbFirst);
-        //}
+    //    return View(productFromDbFirst);
+    //}
 
 
 
@@ -118,12 +141,12 @@ public class InventoryController : Controller
     }
     public IActionResult GetAll(int id)
     {
-        var batchList = _unitOfWork.Batch.GetAll(u=>u.ProductId==id , includeProperties:"Product").Where(u=>u.Stock>0);
+        var batchList = _unitOfWork.Batch.GetAll(u => u.ProductId == id, includeProperties: "Product").Where(u => u.Stock > 0);
         return Json(new { data = batchList });
     }
     public IActionResult GetAll2(int id)
     {
-        var batchList = _unitOfWork.Batch.GetAll(u=>u.ProductId==id ,includeProperties: "Product");
+        var batchList = _unitOfWork.Batch.GetAll(u => u.ProductId == id, includeProperties: "Product");
         return Json(new { data = batchList });
     }
 

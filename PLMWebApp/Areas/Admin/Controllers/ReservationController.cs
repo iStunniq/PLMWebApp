@@ -134,6 +134,18 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             AlertLogistics(reservationHeader);
             
+<<<<<<< HEAD
+=======
+            foreach(var man in logEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation For Processing - Meatify", $"<p><h3>{man.FirstName}, please take action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+                ReservationViewed view2 = new();
+                view2.OrderId = reservationHeader.Id;
+                view2.AlertEmail = man.Email;
+                _unitOfWork.ReservationViewed.Add(view2);
+                _unitOfWork.Save();
+            };
+>>>>>>> 6aa1ba17bf21fa5536655f14e3ea8cf6023ed4ed
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
         
@@ -157,6 +169,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Approval tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+<<<<<<< HEAD
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
             ReservationViewed view = new();
             view.OrderId = reservationHeader.Id;
@@ -169,10 +182,11 @@ namespace PLMWebApp.Areas.Admin.Controllers
             view2.AlertEmail = carrier.Email;
             _unitOfWork.ReservationViewed.Add(view2);
             _unitOfWork.Save();
+=======
+            _emailSender.SendEmailAsync(carrier.Email, "Reservation for Courier Approval - Meatify", $"<p><h3>{carrier.FirstName}, please take action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+>>>>>>> 6aa1ba17bf21fa5536655f14e3ea8cf6023ed4ed
 
-            _emailSender.SendEmailAsync(carrier.Email, "Pst, new process", $"dude, there's an order for order number {ReservationVM.ReservationHeader.Id}");
-
-            TempData["Success"] = "Reservation Status Updated Successfully";
+            TempData["Success"] = "Reservation is for Courier Approval; Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
 
@@ -191,6 +205,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             _unitOfWork.Save();
 
+<<<<<<< HEAD
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
             ReservationViewed view = new();
             view.OrderId = reservationHeader.Id;
@@ -201,6 +216,27 @@ namespace PLMWebApp.Areas.Admin.Controllers
             AlertLogistics(reservationHeader);
 
             TempData["Success"] = "Reservation is for Shipping Status Updated Successfully";
+=======
+            ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
+            _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation is Rejected - Meatify", $"<p><h3>Your reservation is rejected, {reservationHeader2.ApplicationUser.FirstName}. " +
+                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the All tab, go to Reservations.</h3></p>" +
+                $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
+
+            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
+
+            foreach (var man in logEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation is Rejected - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+
+            IEnumerable<ApplicationUser> admins = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Admin));
+            foreach (var man in admins)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation is Rejected - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+
+            TempData["Success"] = "Reservation is Rejected; Status Updated Successfully";
+>>>>>>> 6aa1ba17bf21fa5536655f14e3ea8cf6023ed4ed
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
 
@@ -221,6 +257,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the ToShip tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+<<<<<<< HEAD
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
             ReservationViewed view = new();
             view.OrderId = reservationHeader.Id;
@@ -229,9 +266,23 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.Save();
 
             AlertLogistics(reservationHeader);
+=======
+            IEnumerable<ApplicationUser> admins = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Admin));
+            foreach (var man in admins)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation to be Shipped - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+
+            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
+
+            foreach (var man in logEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation to be Shipped - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+>>>>>>> 6aa1ba17bf21fa5536655f14e3ea8cf6023ed4ed
 
             _unitOfWork.Save();
-            TempData["Success"] = "Reservation is for Shipping Status Updated Successfully";
+            TempData["Success"] = "Reservation is for Shipping; Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
 
@@ -257,6 +308,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Completed tab, go to Reservations.</h3></p> <p><em>NOTICE: Regarding any concern/feedback, it is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+<<<<<<< HEAD
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeaderFromDb.Id));
             
             ReservationViewed view = new();
@@ -266,9 +318,18 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.Save();
 
             AlertLogistics(reservationHeaderFromDb);
+=======
+
+            IEnumerable<ApplicationUser> admins = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Admin));
+            foreach (var man in admins)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation is Completed - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+
+>>>>>>> 6aa1ba17bf21fa5536655f14e3ea8cf6023ed4ed
 
             _unitOfWork.Save();
-            TempData["Success"] = "Reservation Status Updated Successfully";
+            TempData["Success"] = "Reservation is Completed; Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
 
@@ -284,7 +345,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             reservationHeaderFromDb.Carrier = "";
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
-            TempData["Success"] = "Reservation Status Updated Successfully";
+            TempData["Success"] = "Reservation is Pending; Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
 
@@ -310,7 +371,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.ReservationHeader.Update(reservationHeader);
 
             _unitOfWork.Save();
-            TempData["Success"] = "Reservation Cancelled Successfully";
+            TempData["Success"] = "Reservation is Cancelled; Status Updated Successfully";
 
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
             ReservationViewed view = new();
@@ -320,9 +381,29 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.Save();
 
             ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
-            _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation Cancelled! - Meatify", $"<p><h3>Your reservation was cancelled, {reservationHeader2.ApplicationUser.FirstName}. " +
-                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation was cancelled with the reason of {reservationHeader2.CancelReason}, check your reservations.</h3></p> <p><em>NOTICE: Regarding any concern/feedback, it is handled by our Meatify Staff directly</em></p>" +
+            _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation Cancelled - Meatify", $"<p><h3>Your reservation was cancelled, {reservationHeader2.ApplicationUser.FirstName}. " +
+                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation was cancelled with the reason of {reservationHeader2.CancelReason}, check your reservations.</p> <p><em>NOTICE: Regarding any concern/feedback, it is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
+
+            IEnumerable<ApplicationUser> admins = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Admin));
+            foreach (var man in admins)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
+            };
+
+            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
+
+            foreach (var man in logEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
+            };
+
+            IEnumerable<ApplicationUser> salEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
+
+            foreach (var man in salEmployees)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
+            };
 
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }

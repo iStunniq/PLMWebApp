@@ -198,7 +198,7 @@
 									<input asp-for="ReservationHeader.PaymentStatus" type="text" readonly class="form-control" />
 								</div>
 							</div>
-							<input asp-action="UpdateReservationDetail" type="submit" class="btn btn-warning form-control my-1" value="Update Order Details" />
+							<input asp-action="UpdateReservationDetail" type="submit" class="btn btn-info form-control my-1" value="Update Order Details" />
 
 
 						</div>
@@ -279,7 +279,7 @@
 
 								@if (Model.ReservationHeader.OrderStatus != SD.StatusPending && Model.ReservationHeader.OrderStatus != SD.StatusCancelled)
 								{
-									<input type="submit" asp-action="Pending" class="btn btn-danger form-control my-1" value="Return to Pending" />
+									<input type="submit" asp-action="Pending" class="btn btn-info form-control my-1" value="Return to Pending" />
 								}
 							}
 							@if(User.IsInRole(SD.Role_Customer))
