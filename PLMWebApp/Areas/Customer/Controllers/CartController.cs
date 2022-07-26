@@ -199,9 +199,9 @@ namespace PLMWebApp.Areas.Customer.Controllers
         public IActionResult ReservationConfirmation(int id)
         {
             ReservationHeader reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == id, includeProperties: "ApplicationUser");
-            _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation Confirmed! - Meatify", $"<p><h3>Thank you for making a reservation, {reservationHeader.FirstName}!" +
-                $"This is for Reservation # {id}. </p> <p>Your reservation is now in the Pending tab, go to Reservations.</h3></p> <p><em> NOTICE: Cancelling reservations is handled by our Meatify Staff directly, " +
-                $"please contact details for more information: #09219370070 - Gabriel </em></p>");
+            _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation Confirmed! - Meatify", $"<p><h3>Thank you for making a reservation, {reservationHeader.FirstName}! " +
+                $"This is for Reservation # {id}. </p> <p>Your reservation is now in the Pending tab, go to Reservations.</h3></p> <p><em> NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
+                $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
             return View(id);
         }
 

@@ -45,7 +45,7 @@ function loadDataTable(status) {
             { "data": "phone", "width": "15%" },
             { "data": "applicationUser.email", "width": "15%" },
             { "data": "orderStatus", "width": "15%" },
-            { "data": "lastName", "width": "10%" },
+            { "data": "orderTotal", "width": "10%" },
             {
                 "data": "id",
                 "render": function (data,type,row) {
