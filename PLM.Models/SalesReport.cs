@@ -14,13 +14,18 @@ namespace PLM.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        [Display(Name = "From:")]
         public DateTime MinDate { get; set; }
+        [Display(Name = "To:")]
         public DateTime MaxDate { get; set; }
         public int ReservationAmount { get; set; }
         public double Overhead { get; set; }
-        public double BaseCosts { get; set; }
-        public double GrossIncome { get; set; }
-        public double NetIncome { get; set; }
-
+        [Display(Name = "Initial Expenses")]
+        public double? BaseCosts { get; set; }
+        [Display(Name = "Gross Income")]
+        public double? GrossIncome { get; set; }
+        [Display(Name = "Net Profit")] 
+        public double? NetIncome { get; set; }
+        public DateTime GenerationDate { get; set; } = DateTime.Now;
     }
 }

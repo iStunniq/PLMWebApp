@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
 </head>
 <body>
+    <form id="logoutForm2" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+    </form>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container-fluid">
@@ -54,6 +56,7 @@
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Brand" asp-action="Index">Brand</a>
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Inventory" asp-action="Index">Inventory</a>
+                            <a class="dropdown-item" asp-area="Admin" asp-controller="Sales" asp-action="Index">Sales Reports</a>
                             @*<a class="dropdown-item" href="#">Something else here</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" asp-area="Admin" asp-controller="Region" asp-action="Index">Region</a>
@@ -107,8 +110,35 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    @*<script src="https://cdn.tiny.cloud/1/rrymswpjlf22esylw6vd7qvf7vg9jcmds6czc3ht8bwd23f3/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-*@
+    @*<script src="https://cdn.tiny.cloud/1/rrymswpjlf22esylw6vd7qvf7vg9jcmds6czc3ht8bwd23f3/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>*@
     @await RenderSectionAsync("Scripts", required: false)
+    
+    <script> 
+        var idleTime = 0;
+        $(document).ready(function () {
+            //Increment the idle time counter every minute.
+            var idleInterval = setInterval(timerIncrement, 60000); // 1min
+            
+            //Zero the idle timer on mouse movement.
+            $(this).mousemove(function (e) {
+                idleTime = 0;
+            });
+            $(this).keypress(function (e) {
+                idleTime = 0;
+            });
+        });
+
+        function timerIncrement() {
+            idleTime = idleTime + 1;
+            if (idleTime > @SD.MinuteTimeout) { // x seconds
+                var signed = '@(SignInManager.IsSignedIn(User) ? "true" : "false")';
+                var custom = '@(User.IsInRole(SD.Role_Customer) ? "true" : "false")';
+                if (signed == "true" && custom == "false")
+                { 
+                    document.getElementById("logoutForm2").submit();
+                }
+            }
+        }
+    </script>
 </body>
 </html>

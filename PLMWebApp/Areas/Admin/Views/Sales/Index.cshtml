@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Sales Reports";
+}
+
+<div class="container p-3">
+
+    <div class="row pt-4"> 
+        <div class="col-6">
+            <h2 class="text-primary">Sales Reports</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Sales" asp-action="Upsert" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Generate Sales Report
+            </a>
+        </div>
+    </div>
+
+    <br /> 
+
+    <table id="tblData" class="table table-hover" style="width: 100%" > 
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Compeleted Reservations
+                </th>
+                <th>
+                    Gross Income
+                </th>
+                <th>
+                    Net Profit
+                </th>
+                <th>
+                    Generation Date
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+
+@section Scripts{
+    <script src="~/js/sales.js"></script>
+}

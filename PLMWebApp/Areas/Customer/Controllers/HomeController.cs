@@ -63,6 +63,10 @@ public class HomeController : Controller
             ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
 
             homeVM.Alert = _unitOfWork.ReservationViewed.GetAll(u => u.AlertEmail == user.Email).Count();
+            if (User.IsInRole(SD.Role_Operation))
+            {
+                homeVM.Alert = _unitOfWork.Product.GetAll(u => u.Stock < SD.Mid && u.IsActive).Count();
+            }
         }
         return View(homeVM);
     }

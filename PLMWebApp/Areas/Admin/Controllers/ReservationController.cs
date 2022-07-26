@@ -35,25 +35,22 @@ namespace PLMWebApp.Areas.Admin.Controllers
             return _userManager.IsInRoleAsync(user, role).Result;
         }
 
-        public IActionResult Index()
+        public void AlertLogistics(ReservationHeader reservationHeader)
         {
-            IEnumerable<ReservationHeader> reservationHeader = _unitOfWork.ReservationHeader.GetAll();
-            foreach (var head in reservationHeader)
+            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
+
+            foreach (var man in logEmployees)
             {
-                var claimsIdentity = (ClaimsIdentity)User.Identity;
-                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-                ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
-                ReservationViewed view = _unitOfWork.ReservationViewed.GetFirstOrDefault(u => u.OrderId == head.Id && u.AlertEmail == user.Email);
-                if (view != null)
-                {
-                    head.Viewed = false;
-                }
-                else
-                {
-                    head.Viewed = true;
-                }
+                ReservationViewed view = new();
+                view.OrderId = reservationHeader.Id;
+                view.AlertEmail = man.Email;
+                _unitOfWork.ReservationViewed.Add(view);
                 _unitOfWork.Save();
             };
+        }
+
+        public IActionResult Index()
+        {
             return View();
         }
 
@@ -86,7 +83,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult UpdateReservationDetail()
         {
-            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
 
             reservationHeaderFromDb.FirstName = ReservationVM.ReservationHeader.FirstName;
             reservationHeaderFromDb.LastName = ReservationVM.ReservationHeader.LastName;
@@ -113,7 +110,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ForProcessing()
         {
-            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusInProcess;
             reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusApproved;
             if (reservationHeaderFromDb.COD)
@@ -124,29 +121,19 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
             ReservationHeader reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
-            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
-
             _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation is in Process! - Meatify", $"<p><h3>Your reservation is in process, {reservationHeader.ApplicationUser.FirstName}! " +
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the In Process tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
             ReservationViewed view = new();
             view.OrderId = reservationHeader.Id;
             view.AlertEmail = reservationHeader.ApplicationUser.Email;
             _unitOfWork.ReservationViewed.Add(view);
             _unitOfWork.Save();
 
-            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
+            AlertLogistics(reservationHeader);
             
-            foreach(var man in logEmployees)
-            {
-                _emailSender.SendEmailAsync(man.Email, "Pst, new process", $"dude, there's an order for order number {ReservationVM.ReservationHeader.Id}");
-                ReservationViewed view2 = new();
-                view2.OrderId = reservationHeader.Id;
-                view2.AlertEmail = man.Email;
-                _unitOfWork.ReservationViewed.Add(view2);
-                _unitOfWork.Save();
-            };
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
         
@@ -157,7 +144,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         {
 
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
-            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusApproval;
             reservationHeaderFromDb.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
             reservationHeaderFromDb.Carrier = ReservationVM.ReservationHeader.Carrier;
@@ -170,6 +157,19 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Approval tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
+            ReservationViewed view = new();
+            view.OrderId = reservationHeader.Id;
+            view.AlertEmail = reservationHeader.ApplicationUser.Email;
+            _unitOfWork.ReservationViewed.Add(view);
+            _unitOfWork.Save();
+
+            ReservationViewed view2 = new();
+            view2.OrderId = reservationHeader.Id;
+            view2.AlertEmail = carrier.Email;
+            _unitOfWork.ReservationViewed.Add(view2);
+            _unitOfWork.Save();
+
             _emailSender.SendEmailAsync(carrier.Email, "Pst, new process", $"dude, there's an order for order number {ReservationVM.ReservationHeader.Id}");
 
             TempData["Success"] = "Reservation Status Updated Successfully";
@@ -181,7 +181,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RejectOrder()
         {
-            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties:("ApplicationUser"),tracked: false);
 
             reservationHeader.OrderStatus = SD.StatusInProcess;
             reservationHeader.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
@@ -190,6 +190,16 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.ReservationHeader.Update(reservationHeader);
 
             _unitOfWork.Save();
+
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
+            ReservationViewed view = new();
+            view.OrderId = reservationHeader.Id;
+            view.AlertEmail = reservationHeader.ApplicationUser.Email;
+            _unitOfWork.ReservationViewed.Add(view);
+            _unitOfWork.Save();
+
+            AlertLogistics(reservationHeader);
+
             TempData["Success"] = "Reservation is for Shipping Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
@@ -199,7 +209,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ShipOrder()
         {
-            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
 
             reservationHeader.OrderStatus = SD.StatusShipped;
 
@@ -210,6 +220,15 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation to be Shipped! - Meatify", $"<p><h3>Your reservation is to be shipped, {reservationHeader2.ApplicationUser.FirstName}! " +
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the ToShip tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
+
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
+            ReservationViewed view = new();
+            view.OrderId = reservationHeader.Id;
+            view.AlertEmail = reservationHeader.ApplicationUser.Email;
+            _unitOfWork.ReservationViewed.Add(view);
+            _unitOfWork.Save();
+
+            AlertLogistics(reservationHeader);
 
             _unitOfWork.Save();
             TempData["Success"] = "Reservation is for Shipping Status Updated Successfully";
@@ -223,7 +242,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         {
 
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
-            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusCompleted;
             reservationHeaderFromDb.ShippingDate = DateTime.Now;
             if (reservationHeaderFromDb.COD)
@@ -238,6 +257,16 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Completed tab, go to Reservations.</h3></p> <p><em>NOTICE: Regarding any concern/feedback, it is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeaderFromDb.Id));
+            
+            ReservationViewed view = new();
+            view.OrderId = reservationHeaderFromDb.Id;
+            view.AlertEmail = reservationHeaderFromDb.ApplicationUser.Email;
+            _unitOfWork.ReservationViewed.Add(view);
+            _unitOfWork.Save();
+
+            AlertLogistics(reservationHeaderFromDb);
+
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
@@ -250,7 +279,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         {
 
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
-            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusPending;
             reservationHeaderFromDb.Carrier = "";
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
@@ -264,7 +293,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CancelOrder(IFormFile file)
         {
-            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, tracked: false);
+            var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id,includeProperties:"ApplicationUser", tracked: false);
             IEnumerable<ReservationDetail> reservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == ReservationVM.ReservationHeader.Id, includeProperties: "Batch,Batch.Product");
             reservationHeader.OrderStatus = SD.StatusCancelled;
             reservationHeader.PaymentStatus = SD.PaymentStatusRefunded;
@@ -282,6 +311,13 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             _unitOfWork.Save();
             TempData["Success"] = "Reservation Cancelled Successfully";
+
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
+            ReservationViewed view = new();
+            view.OrderId = reservationHeader.Id;
+            view.AlertEmail = reservationHeader.ApplicationUser.Email;
+            _unitOfWork.ReservationViewed.Add(view);
+            _unitOfWork.Save();
 
             ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
             _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation Cancelled! - Meatify", $"<p><h3>Your reservation was cancelled, {reservationHeader2.ApplicationUser.FirstName}. " +
@@ -336,6 +372,22 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 default:
                     break;
             }
+
+            foreach (var head in reservationHeaders)
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+                ReservationViewed view = _unitOfWork.ReservationViewed.GetFirstOrDefault(u => u.OrderId == head.Id && u.AlertEmail == user.Email);
+                if (view != null)
+                {
+                    head.Viewed = false;
+                }
+                else
+                {
+                    head.Viewed = true;
+                }
+            };
 
             return Json(new { data = reservationHeaders });
         }

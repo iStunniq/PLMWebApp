@@ -92,7 +92,10 @@
 @section Scripts{
 	<partial name="_ValidationScriptsPartial" />
 	<script>
-    if (@Model.Alert != null && @Model.Alert != 0) {
+    var SaleRole = '@(User.IsInRole(SD.Role_Sales) ? "true" : "false")';
+    var CourRole = '@(User.IsInRole(SD.Role_Courier) ? "true" : "false")';
+    var OpsRole = '@(User.IsInRole(SD.Role_Operation) ? "true" : "false")';
+    if (@Model.Alert != null && @Model.Alert != 0 && OpsRole == "false") {
         Swal.fire({
             title: "You have " + @Model.Alert.ToString()+ " Reservation(s) to check.",
             text: "Do you want to check them?",
@@ -103,18 +106,29 @@
             confirmButtonText: 'Take me there.'
         }).then((result) => {
             if (result.isConfirmed) {
-                var SaleRole = '@(User.IsInRole(SD.Role_Sales) ? "true" : "false")';
-                var CourRole = '@(User.IsInRole(SD.Role_Courier) ? "true" : "false")';
-                var LogRole = '@(User.IsInRole(SD.Role_Logistics) ? "true" : "false")';
                 if (SaleRole == "true") {
                     window.location.href = "/Admin/Reservation?status=pending";
                 } else if (CourRole == "true") {
                     window.location.href = "/Admin/Reservation?status=approval";
-                } else if (LogRole == "true"){
-                    window.location.href = "/Admin/Reservation?status=inprocess";
-                } else { 
+                } 
+                else { 
                     window.location.href = "/Admin/Reservation";
                 }
+            }
+        })
+    }
+    if (@Model.Alert != null && @Model.Alert != 0 && OpsRole == "true") {
+        Swal.fire({
+            title: @Model.Alert.ToString()+ " Product(s) are low on stock",
+            text: "Do you want to check them?",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#30F030',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Take me there.'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/Admin/Inventory";
             }
         })
     }

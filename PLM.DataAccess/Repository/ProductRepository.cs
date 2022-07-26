@@ -38,10 +38,10 @@ namespace PLM.DataAccess.Repository
                 if (obj.Stock == 0)
                 {
                     objFromDb.StockStat = SD.StockZero;
-                } else if (obj.Stock > 0 && obj.Stock < 10)
+                } else if (obj.Stock > 0 && obj.Stock < SD.Mid)
                 {
                     objFromDb.StockStat = SD.StockLow;
-                } else if (obj.Stock >= 10 && obj.Stock < 20)
+                } else if (obj.Stock >= SD.Mid && obj.Stock < SD.High)
                 {
                     objFromDb.StockStat = SD.StockMid;
                 } else {
