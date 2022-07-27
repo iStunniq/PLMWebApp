@@ -31,7 +31,8 @@
 
 <div class="row pb-3">
     <form method="post" enctype="multipart/form-data">
-        <div class="row">
+        <div class="row card border-primary mb-3">
+            <div class="card-header">Filter Options</div>
             <div class="col-12">
                 <div class="p-3 mt-4 row">
                     <div class="col-3">
@@ -47,9 +48,9 @@
                         </select>
                     </div>
                     <div class="col-3">
-                        <input asp-for="MinPrice" placeholder="Minimum Price" style="width: 95%;margin:auto"/>
+                        <input asp-for="MinPrice" class="form-control" id="floatingInput" placeholder="Minimum Price" style="width: 95%;margin:auto"/>
                         <span asp-validation-for="MinPrice" class="text-danger"></span>
-                        <input asp-for="MaxPrice" placeholder="Maximum Price" style="width: 95%;margin:auto"/>
+                        <input asp-for="MaxPrice" class="form-control" id="floatingInput" placeholder="Maximum Price" style="width: 95%;margin:auto"/>
                         <span asp-validation-for="MaxPrice" class="text-danger"></span>
                     </div>
                     <div class="col-3">

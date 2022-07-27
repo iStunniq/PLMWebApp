@@ -306,7 +306,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusApproved;
             }
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
-            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeaderFromDb.Id));
             ReservationViewed view = new();
             view.OrderId = reservationHeaderFromDb.Id;
             view.AlertEmail = reservationHeaderFromDb.ApplicationUser.Email;
