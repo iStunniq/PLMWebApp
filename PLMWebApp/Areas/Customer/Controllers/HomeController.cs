@@ -65,7 +65,7 @@ public class HomeController : Controller
             homeVM.Alert = _unitOfWork.ReservationViewed.GetAll(u => u.AlertEmail == user.Email).Count();
             if (User.IsInRole(SD.Role_Operation))
             {
-                homeVM.Alert = _unitOfWork.Product.GetAll(u => u.Stock < SD.Mid && u.IsActive).Count();
+                homeVM.Alert = _unitOfWork.Product.GetAll(u => (u.Stock < SD.Mid || u.Expiry < DateTime.Now.AddMonths(1)) && u.IsActive).Count();
             }
         }
         return View(homeVM);
@@ -80,13 +80,6 @@ public class HomeController : Controller
 
         public IActionResult Details(int productId)
         {
-        // ShoppingCart cartObj = new()
-        //{
-        //    Count = 1,
-        //    ProductId = productId,
-        //    Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
-        //};
-
         if (_signInManager.IsSignedIn(User)){
 
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -103,11 +96,9 @@ public class HomeController : Controller
                     ProductId = productId,
                     Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
                 };
-                cartObj.Expiry = _unitOfWork.Batch.GetFirstOrDefault(u => u.Stock > 0 && u.ProductId == productId).Expiry;
                 return View(cartObj);
             }
             cartFromDb.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand");
-            cartFromDb.Expiry = _unitOfWork.Batch.GetFirstOrDefault(u => u.Stock > 0 && u.ProductId == productId).Expiry;
             return View(cartFromDb);
         } else
         {
@@ -117,7 +108,6 @@ public class HomeController : Controller
                 ProductId = productId,
                 Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
             };
-            cartObj.Expiry = _unitOfWork.Batch.GetFirstOrDefault(u => u.Stock > 0 && u.ProductId == productId).Expiry;
             return View(cartObj);
         }
         }

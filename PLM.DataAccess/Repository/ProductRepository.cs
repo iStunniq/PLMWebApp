@@ -28,6 +28,15 @@ namespace PLM.DataAccess.Repository
                 objFromDb.Price = obj.Price;
                 objFromDb.CategoryId = obj.CategoryId;
                 objFromDb.BrandId = obj.BrandId;
+                var firstbatch = _db.Batches.Where(u => u.ProductId == obj.Id && u.Stock>0).FirstOrDefault();
+                if (firstbatch == null)
+                {
+                    objFromDb.Expiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified);
+                }
+                else 
+                { 
+                    objFromDb.Expiry = firstbatch.Expiry;
+                }
                 IEnumerable<Batch> batches = _db.Batches.Where(u => u.ProductId == obj.Id).ToList();
                 obj.Stock = 0;
                 foreach (Batch batch in batches)

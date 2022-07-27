@@ -11,12 +11,13 @@ function loadDataTable() {
             "url":"/Admin/Inventory/GetProducts"
         },
         "columns": [
-            { "data": "name", "width": "15%" },
-            { "data": "stock", "width": "15%" },
+            { "data": "name", "width": "20%" },
+            { "data": "stock", "width": "10%" },
             { "data": "stockStat", "width": "15%"},
-            { "data": "price", "width": "15%" },
-            { "data": "brand.name", "width": "15%" },
-            { "data": "category.name", "width": "15%" },
+            { "data": "expiry", "width": "15%" },
+            { "data": "price", "width": "10%" },
+            { "data": "brand.name", "width": "10%" },
+            { "data": "category.name", "width": "10%" },
             {
                 "data": "id",
                 "render": function (data,type,row) {
@@ -28,7 +29,7 @@ function loadDataTable() {
                         </div>
                         `
                 },
-                "width": "15%"
+                "width": "10%"
             }
         ]
     });

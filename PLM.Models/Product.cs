@@ -44,6 +44,6 @@ namespace PLM.Models
         public string StockStat { get; set; } = SD.StockZero;
         public bool IsActive { get; set; } = true;
         public DateTime Inactivity { get; set; } = DateTime.Now;
-
+        public DateTime Expiry { get; set; }
     }
 }

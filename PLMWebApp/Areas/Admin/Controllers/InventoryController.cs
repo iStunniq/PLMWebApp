@@ -85,12 +85,12 @@ public class InventoryController : Controller
         {
             _unitOfWork.Batch.Add(obj.Batch);
             TempData["Success"] = "Batch Created Successfully";
-            IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
+            //IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
 
-            foreach (var man in opeEmployees)
-            {
-                _emailSender.SendEmailAsync(man.Email, $"New Batch for {obj.Product.Name} - Meatify", $"<p><h4>{man.FirstName}, please check inventory for Product: <i>{obj.Product.Name}</i>. A new batch has been added, and it's Stock is equal to: {obj.Batch.Stock}. Thank you!</h4></p>");
-            };
+            //foreach (var man in opeEmployees)
+            //{
+            //    _emailSender.SendEmailAsync(man.Email, $"New Batch for {obj.Product.Name} - Meatify", $"<p><h4>{man.FirstName}, please check inventory for Product: <i>{obj.Product.Name}</i>. A new batch has been added, and it's Stock is equal to: {obj.Batch.Stock}. Thank you!</h4></p>");
+            //};
         }
         else
         {
@@ -125,12 +125,12 @@ public class InventoryController : Controller
                 _unitOfWork.Batch.Update(obj.Batch);
             }
             TempData["Success"] = "Batch Updated Successfully";
-            IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
+            //IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
 
-            foreach (var man in opeEmployees)
-            {
-                _emailSender.SendEmailAsync(man.Email, $"Updated Batch for {obj.Product.Name} - Meatify", $"<p><h4>{man.FirstName}, please check inventory for Product: <i>{obj.Product.Name}</i>, Batch ID: {obj.Batch.Id}. It was recently updated, and this batch's Stock is now equal to: {obj.Batch.Stock}. Thank you!</h4></p>");
-            };
+            //foreach (var man in opeEmployees)
+            //{
+            //    _emailSender.SendEmailAsync(man.Email, $"Updated Batch for {obj.Product.Name} - Meatify", $"<p><h4>{man.FirstName}, please check inventory for Product: <i>{obj.Product.Name}</i>, Batch ID: {obj.Batch.Id}. It was recently updated, and this batch's Stock is now equal to: {obj.Batch.Stock}. Thank you!</h4></p>");
+            //};
         }
         _unitOfWork.Save();
         Product prod = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == obj.Product.Id);

@@ -120,7 +120,7 @@
     }
     if (@Model.Alert != null && @Model.Alert != 0 && OpsRole == "true") {
         Swal.fire({
-            title: @Model.Alert.ToString()+ " Product(s) are low on stock",
+            title: @Model.Alert.ToString()+ " Product(s) require your attention",
             text: "Do you want to check them?",
             icon: 'info',
             showCancelButton: true,

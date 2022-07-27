@@ -41,11 +41,6 @@ public class CategoryController : Controller
         [ValidateAntiForgeryToken]
         public IActionResult Create(Category obj)
         {
-            if (obj.Name == obj.DisplayOrder.ToString())
-            {
-                ModelState.AddModelError("Name", "The Display Order cannot exactly match the Name");
-            }
-
             if (ModelState.IsValid)
             {
                 _unitOfWork.Category.Add(obj);
@@ -78,10 +73,6 @@ public class CategoryController : Controller
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Category obj)
         {
-            if (obj.Name == obj.DisplayOrder.ToString())
-            {
-                ModelState.AddModelError("Name", "The Display Order cannot exactly match the Name");
-            }
 
             if (ModelState.IsValid)
             {

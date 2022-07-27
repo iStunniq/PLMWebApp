@@ -16,12 +16,6 @@
             <input asp-for="Name" type="text" class="form-control" id="floatingInput" placeholder="Category Name">
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
-        <div class="mb-3">
-            <label asp-for="DisplayOrder"></label>
-            <br /> 
-            <input asp-for="DisplayOrder" type="text" class="form-control" id="floatingInput" placeholder="Display Order">
-            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
-        </div>
         <button type="submit" class="btn btn-primary" style="width: 150px">Create</button>
         <a asp-controller="Category" asp-action="Index" class="btn btn-secondary" style="width: 150px">Back To List</a>
     </div>
