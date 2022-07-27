@@ -112,7 +112,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     @*<script src="https://cdn.tiny.cloud/1/rrymswpjlf22esylw6vd7qvf7vg9jcmds6czc3ht8bwd23f3/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>*@
     @await RenderSectionAsync("Scripts", required: false)
-    
     <script> 
         var idleTime = 0;
         $(document).ready(function () {
@@ -139,6 +138,21 @@
                 }
             }
         }
+        var signed = '@(SignInManager.IsSignedIn(User) ? "true" : "false")';
+        var customer = '@(User.IsInRole(SD.Role_Customer) ? "true" : "false")';
+        var area = window.location.href.includes("Account");
+        if (signed == "true" && customer == "true" && !area) { 
+            $.ajax({
+				url: "/Customer/Home/Validate",
+				type:'GET',
+				success: function(result){
+                    if (!result.success) {
+                        window.location.href = "/Identity/Account/Manage"
+                    }
+				}
+			});
+        }
+
     </script>
 </body>
 </html>

@@ -47,6 +47,10 @@
                     <span asp-validation-for="Input.Zip" class="text-danger"></span>
                 </div>
                 <button id="update-profile-button" asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="w-100 btn btn-lg btn-info">Change Password</button>
+                @if (!Model.Input.Confirmed)
+                {
+                    <button asp-area="Identity" asp-page="/Account/ResendEmailConfirmation" class="w-100 btn btn-lg btn-info">Resend Email Confirmation</button>
+                }
                 <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
             </form>
         </div>

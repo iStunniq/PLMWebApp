@@ -79,6 +79,8 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Zip Code")]
             public string Zip { get; set; }
 
+            public bool Confirmed { get; set; }
+
         }
 
         private async Task LoadAsync(IdentityUser user)
@@ -87,7 +89,6 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
             ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == user.Id);
 
             Username = userName;
-
             Input = new InputModel
             {
                 Fname = applicationUser.FirstName,
@@ -95,7 +96,8 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
                 Phone = applicationUser.Phone,
                 Address = applicationUser.Address,
                 City = applicationUser.City,
-                Zip = applicationUser.ZipCode
+                Zip = applicationUser.ZipCode,
+                Confirmed = applicationUser.EmailConfirmed
             };
         }
 

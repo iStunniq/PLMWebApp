@@ -150,10 +150,24 @@ public class HomeController : Controller
 
             return RedirectToAction("Index", "Cart");
         }
-
+        
         public IActionResult Privacy()
         {
             return View();
+        }
+        [HttpGet]
+        public IActionResult Validate()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+            if (user.EmailConfirmed)
+            {
+                return Json(new { success = true });
+            }
+            else {
+                return Json(new { success = false});
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
