@@ -7,6 +7,10 @@
 
 <div class="row p-3">
     <h3>@ViewData["Title"]</h3>
+    @if (!Model.Input.Confirmed)
+    {
+        <h5 class="text-danger">Please confirm your email to gain access to the website</h5>
+    }
     <partial name="_StatusMessage" for="StatusMessage" />
     <div class="row pt-4">
         <div class="col-md-7 row">
@@ -49,7 +53,7 @@
                 <button id="update-profile-button" asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="w-100 btn btn-lg btn-info">Change Password</button>
                 @if (!Model.Input.Confirmed)
                 {
-                    <button asp-area="Identity" asp-page="/Account/ResendEmailConfirmation" class="w-100 btn btn-lg btn-info">Resend Email Confirmation</button>
+                    <button asp-area="Identity" asp-page="/Account/ResendEmailConfirmation" class="w-100 btn btn-lg btn-danger">Resend Email Confirmation</button>
                 }
                 <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
             </form>
