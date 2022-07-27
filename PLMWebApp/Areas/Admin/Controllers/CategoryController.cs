@@ -7,7 +7,7 @@ using PLM.Utility;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Operation)]
+[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Operation + "," + SD.Role_Marketing)]
 public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
