@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
-[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Operation)]
+[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Operation + "," + SD.Role_Logistics + "," + SD.Role_Sales)]
 public class InventoryController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
