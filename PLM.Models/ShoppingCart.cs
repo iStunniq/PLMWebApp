@@ -29,5 +29,7 @@ namespace PLM.Models
 
         [NotMapped]
         public double Price { get; set; }
+
+        public DateTime Expiry { get; set; }
     }
 }

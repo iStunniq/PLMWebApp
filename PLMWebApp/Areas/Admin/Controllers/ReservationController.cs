@@ -62,7 +62,30 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 _unitOfWork.Save();
             };
         }
-
+        public void UpdateReports()
+        {
+            IEnumerable<SalesReport> salesReport = _unitOfWork.SalesReport.GetAll(u => DateTime.Now < u.MaxDate && DateTime.Now > u.MinDate);
+            foreach (SalesReport sales in salesReport)
+            {
+                IEnumerable<ReservationHeader> salesItems = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
+                sales.ReservationAmount = 0;
+                foreach (var item in salesItems)
+                {
+                    sales.ReservationAmount += 1;
+                }
+                sales.BaseCosts = 0;
+                foreach (var item in salesItems)
+                {
+                    sales.BaseCosts += item.BaseTotal;
+                }
+                sales.GrossIncome = 0;
+                foreach (var item in salesItems)
+                {
+                    sales.GrossIncome += item.OrderTotal;
+                }
+                sales.NetIncome = sales.GrossIncome - sales.BaseCosts - sales.Overhead;
+            }
+        }
         public IActionResult Index()
         {
             return View();
@@ -79,7 +102,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 {
                     Text = i.Email,
                     Value = i.Id.ToString()
-                })
+                }),
             };
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -326,7 +349,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             };
 
             AlertAdmin(reservationHeaderFromDb);
-
+            UpdateReports();
             _unitOfWork.Save();
             TempData["Success"] = "Reservation is Completed; Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });

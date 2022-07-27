@@ -103,9 +103,11 @@ public class HomeController : Controller
                     ProductId = productId,
                     Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
                 };
+                cartObj.Expiry = _unitOfWork.Batch.GetFirstOrDefault(u => u.Stock > 0 && u.ProductId == productId).Expiry;
                 return View(cartObj);
             }
             cartFromDb.Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand");
+            cartFromDb.Expiry = _unitOfWork.Batch.GetFirstOrDefault(u => u.Stock > 0 && u.ProductId == productId).Expiry;
             return View(cartFromDb);
         } else
         {
@@ -115,6 +117,7 @@ public class HomeController : Controller
                 ProductId = productId,
                 Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,Brand")
             };
+            cartObj.Expiry = _unitOfWork.Batch.GetFirstOrDefault(u => u.Stock > 0 && u.ProductId == productId).Expiry;
             return View(cartObj);
         }
         }

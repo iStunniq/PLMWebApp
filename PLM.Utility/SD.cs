@@ -19,7 +19,7 @@ namespace PLM.Utility
         public const string StatusPending = "Pending";
         public const string StatusInProcess = "Processing";
         public const string StatusApproval = "Approval";
-        public const string StatusShipped = "Shipped";
+        public const string StatusShipped = "To Ship";
         public const string StatusCompleted = "Completed";
         public const string StatusCancelled = "Cancelled";
         public const string StatusRefunded = "Refunded";
