@@ -53,7 +53,7 @@ function loadDataTable(status) {
                         return `
                         <div class="w-75 btn-group" role="group">
                             <a href="/Admin/Reservation/Details?reservationId=${data}" class="btn btn-info mx-2"> 
-                                <i class="bi bi-pencil-square"> </i> Check Details
+                                <i class="bi bi-pencil-square"> </i> Details
                             </a>
                         </div>
                         `

@@ -24,6 +24,8 @@ namespace PLM.Models
 
         public double OrderTotal { get; set; }
 
+        public double BaseTotal { get; set; }
+
         public string? OrderStatus { get; set; }
 
         public string? PaymentStatus { get; set; }

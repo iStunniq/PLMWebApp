@@ -15,5 +15,8 @@ namespace PLM.Models.ViewModels
         public IEnumerable<ReservationDetail> ReservationDetail { get; set; }
         [ValidateNever]
         public IEnumerable<SelectListItem> Carrier { get; set; }
+
+        public int? oid { get; set; }
+    
     }
 }

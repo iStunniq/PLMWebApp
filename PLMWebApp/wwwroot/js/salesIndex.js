@@ -11,11 +11,12 @@ function loadDataTable() {
             "url":"/Admin/Sales/GetAll"
         },
         "columns": [
-            { "data": "name", "width": "15%" },
-            { "data": "reservationAmount", "width": "15%" },
-            { "data": "grossIncome", "width": "15%" },
-            { "data": "netIncome", "width": "15%" },
-            { "data": "generationDate", "width": "15%" },
+            { "data": "name", "width": "20%" },
+            { "data": "reservationAmount", "width": "10%" },
+            { "data": "grossIncome", "width": "10%" },
+            { "data": "baseCosts", "width": "10%" },
+            { "data": "netIncome", "width": "10%" },
+            { "data": "generationDate", "width": "20%" },
             {
                 "data": "id",
                 "render": function (data) {
@@ -24,13 +25,16 @@ function loadDataTable() {
                             <a href="/Admin/Sales/Upsert?id=${data}" class="btn btn-info mx-2"> 
                                 <i class="bi bi-pencil-square"> </i> Edit 
                             </a>
+                            <a href="/Admin/Sales/SalesItems?id=${data}" class="btn btn-info mx-2">
+                                <i class="bi bi-eye"> </i> Items
+                            </a>
                             <a onclick="Delete('/Admin/Sales/Delete/+${data}')" class="btn btn-danger mx-2"> 
                                 <i class="bi bi-trash"></i> Delete
                             </a>
                         </div>
                         `
                 },
-                "width": "15%"
+                "width": "20%"
             }
         ]
     });

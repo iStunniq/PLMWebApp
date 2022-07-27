@@ -142,9 +142,6 @@ namespace PLMWebApp.Areas.Customer.Controllers
                 ShoppingCartVM.ReservationHeader.GCashImageUrl = @"\images\CODDefault.png";
             }
 
-            _unitOfWork.ReservationHeader.Add(ShoppingCartVM.ReservationHeader);
-            _unitOfWork.Save();
-
             IEnumerable<ApplicationUser> SalesEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
             foreach (var man in SalesEmployees)
             {
@@ -153,7 +150,9 @@ namespace PLMWebApp.Areas.Customer.Controllers
                 view.AlertEmail = man.Email;
                 _unitOfWork.ReservationViewed.Add(view);
             }
-            
+            ShoppingCartVM.ReservationHeader.BaseTotal = 0;
+            _unitOfWork.ReservationHeader.Add(ShoppingCartVM.ReservationHeader);
+            _unitOfWork.Save();
             foreach (var cart in ShoppingCartVM.ListCart)
             {
                 while (cart.Count > 0)
@@ -168,6 +167,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
                             Price = GetPriceBasedOnQuantity(cart.Count,cart.Product.Price),
                             Count = cart.Count
                         };
+                        ShoppingCartVM.ReservationHeader.BaseTotal += batch.BasePrice * cart.Count;
                         batch.Stock = batch.Stock - cart.Count;
                         cart.Count = 0;
                         _unitOfWork.ReservationDetail.Add(reservationDetail);
@@ -181,6 +181,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
                             Price = GetPriceBasedOnQuantity(batch.Stock, cart.Product.Price),
                             Count = batch.Stock
                         };
+                        ShoppingCartVM.ReservationHeader.BaseTotal += batch.BasePrice * batch.Stock;
                         cart.Count = cart.Count - batch.Stock;
                         batch.Stock = 0;
                         _unitOfWork.ReservationDetail.Add(reservationDetail);
@@ -190,7 +191,6 @@ namespace PLMWebApp.Areas.Customer.Controllers
                 _unitOfWork.Product.Update(cart.Product);
                 _unitOfWork.Save();
             }
-
             _unitOfWork.ShoppingCart.RemoveRange(ShoppingCartVM.ListCart);
             _unitOfWork.Save();
             return RedirectToAction("ReservationConfirmation", "Cart", new { id = ShoppingCartVM.ReservationHeader.Id });

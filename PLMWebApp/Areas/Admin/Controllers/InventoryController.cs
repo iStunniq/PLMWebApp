@@ -94,7 +94,36 @@ public class InventoryController : Controller
         }
         else
         {
-            _unitOfWork.Batch.Update(obj.Batch);
+            if (_unitOfWork.Batch.GetFirstOrDefault(u => u.Id == obj.Batch.Id).BasePrice != obj.Batch.BasePrice)
+            {
+                _unitOfWork.Batch.Update(obj.Batch);
+                IEnumerable<SalesReport> salesReport = _unitOfWork.SalesReport.GetAll();
+                IEnumerable<ReservationHeader> reservationHeaders = _unitOfWork.ReservationHeader.GetAll();
+
+                foreach (var reservation in reservationHeaders)
+                {
+                    IEnumerable<ReservationDetail> reservationDetails = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == reservation.Id,includeProperties:"Batch");
+                    reservation.BaseTotal = 0;
+                    foreach (var detail in reservationDetails) {
+                        reservation.BaseTotal += detail.Count * detail.Batch.BasePrice;
+                    }
+                }
+                _unitOfWork.Save();
+                foreach (SalesReport sales in salesReport)
+                {
+                    IEnumerable<ReservationHeader> salesItems = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
+                    sales.BaseCosts = 0;
+                    foreach (var item in salesItems)
+                    {
+                        sales.BaseCosts += item.BaseTotal;
+                    }
+                    sales.NetIncome = sales.GrossIncome - sales.BaseCosts - sales.Overhead;
+                }
+                _unitOfWork.Save();
+            } else
+            {
+                _unitOfWork.Batch.Update(obj.Batch);
+            }
             TempData["Success"] = "Batch Updated Successfully";
             IEnumerable<ApplicationUser> opeEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Operation));
 
