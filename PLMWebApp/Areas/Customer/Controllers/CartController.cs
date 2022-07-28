@@ -24,18 +24,18 @@ namespace PLMWebApp.Areas.Customer.Controllers
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
 
-        public bool ValidateRole(string email, string role)
-        {
-            var user = _userManager.FindByEmailAsync(email).Result;
-            return _userManager.IsInRoleAsync(user, role).Result;
-        }
-
         public CartController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment, IEmailSender emailSender, UserManager<IdentityUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
             _emailSender = emailSender;
             _userManager = userManager;
+        }
+
+        public bool ValidateRole(string email, string role)
+        {
+            var user = _userManager.FindByEmailAsync(email).Result;
+            return _userManager.IsInRoleAsync(user, role).Result;
         }
 
         public IActionResult Index()
@@ -199,7 +199,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
         public IActionResult ReservationConfirmation(int id)
         {
             ReservationHeader reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == id, includeProperties: "ApplicationUser");
-            _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation Confirmed! - Meatify", $"<p><h3>Thank you for making a reservation, {reservationHeader.FirstName}! " +
+            SendEmail(reservationHeader.ApplicationUser.Email, "Reservation Confirmed! - Meatify", $"<p><h3>Thank you for making a reservation, {reservationHeader.FirstName}! " +
                 $"This is for Reservation # {id}. </p> <p>Your reservation is now in the Pending tab, go to Reservations.</h3></p> <p><em> NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
             return View(id);
@@ -264,7 +264,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
             }
 
             ApplicationUser applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u=> u.Id == id);
-            _emailSender.SendEmailAsync(applicationUser.Email, "Your Reservation OTP! - Meatify", $"<p>Thank you for making a reservation, {applicationUser.FirstName}! Your OTP is {otp}.</p>");
+            SendEmail(applicationUser.Email, "Your Reservation OTP! - Meatify", $"<p>Thank you for making a reservation, {applicationUser.FirstName}! Your OTP is {otp}.</p>");
             return Json(new { success = true });
         }
         public IActionResult ValidateStock()

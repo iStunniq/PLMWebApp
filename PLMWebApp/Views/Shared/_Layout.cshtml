@@ -129,7 +129,7 @@
 
         function timerIncrement() {
             idleTime = idleTime + 1;
-            if (idleTime > @SD.MinuteTimeout) { // x seconds
+            if (idleTime > @SD.MinuteTimeout) { // x minutes
                 var signed = '@(SignInManager.IsSignedIn(User) ? "true" : "false")';
                 var custom = '@(User.IsInRole(SD.Role_Customer) ? "true" : "false")';
                 if (signed == "true" && custom == "false")

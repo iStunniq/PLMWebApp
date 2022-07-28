@@ -159,7 +159,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             TempData["Success"] = "Reservation Status Updated Successfully";
             ReservationHeader reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
             _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation is in Process! - Meatify", $"<p><h3>Your reservation is in process, {reservationHeader.ApplicationUser.FirstName}! " +
-                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the In Process tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
+                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the In Process tab, go to Reservations. We will now assign a Courier and Possible Shipping Date</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
@@ -198,7 +198,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             ReservationHeader reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
             _emailSender.SendEmailAsync(reservationHeader.ApplicationUser.Email, "Reservation is for Approval! - Meatify", $"<p><h3>Your reservation is for approval, {reservationHeader.ApplicationUser.FirstName}! " +
-                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Approval tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
+                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the Approval tab, go to Reservations. This process may be rejected by the assigned courier, but will be processed again.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
             _emailSender.SendEmailAsync(carrier.Email, "Reservation for Courier Approval - Meatify", $"<p><h3>{carrier.FirstName}, please take action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
@@ -229,7 +229,6 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             reservationHeader.OrderStatus = SD.StatusInProcess;
             reservationHeader.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
-            reservationHeader.Carrier = "";
 
             _unitOfWork.ReservationHeader.Update(reservationHeader);
 
@@ -243,8 +242,8 @@ namespace PLMWebApp.Areas.Admin.Controllers
             _unitOfWork.Save();
 
             ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
-            _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation is Rejected - Meatify", $"<p><h3>Your reservation is rejected, {reservationHeader2.ApplicationUser.FirstName}. " +
-                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the All tab, go to Reservations.</h3></p>" +
+            _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation Rejected - Meatify", $"<p><h3>Your reservation was rejected, {reservationHeader2.ApplicationUser.FirstName}. " +
+                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation back in the Process tab, go to Reservations. We will choose a separate Courier.</h3></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
             IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
@@ -288,7 +287,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
             _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation to be Shipped! - Meatify", $"<p><h3>Your reservation is to be shipped, {reservationHeader2.ApplicationUser.FirstName}! " +
-                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the ToShip tab, go to Reservations.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
+                $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation is now in the ToShip tab. Click the Reservations tab to see the expected shipping date.</h3></p> <p><em>NOTICE: Cancelling reservations is handled by our Meatify Staff directly</em></p>" +
                 $"<p><em>Please contact details for more information: #09219370070 - Gabriel</em></p>");
 
             IEnumerable<ApplicationUser> admins = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Admin));

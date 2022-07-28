@@ -158,12 +158,24 @@
 									}
 								</div>
 							</div>*@
+							@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Logistics)){
+								
 							<div class="row my-1">
 								<div class="col-3">Shipping Date</div>
 								<div class="col-9">
 									<input asp-for="ReservationHeader.ShippingDate" type="datetime-local" class="form-control"/>
 								</div>
-							</div>
+								</div>
+							}
+							else
+							{
+								<div class="row my-1">
+									<div class="col-3">Shipping Date</div>
+									<div class="col-9">
+										<input asp-for="ReservationHeader.ShippingDate" type="datetime-local" class="form-control" readonly/>
+									</div>
+								</div>
+							}
 							@*<div class="row my-1">
 								<div class="col-3">Transaction ID</div>
 								<div class="col-9">

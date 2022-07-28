@@ -13,6 +13,7 @@ namespace PLM.Utility
     {
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+
             var emailToSend = new MimeMessage();
             emailToSend.From.Add(MailboxAddress.Parse("meatify.company@gmail.com"));
             emailToSend.To.Add(MailboxAddress.Parse(email));
