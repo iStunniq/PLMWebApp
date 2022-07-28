@@ -39,5 +39,7 @@ namespace PLM.Utility
         public const string StockHigh = "3. High Stock";
 
         public const int MinuteTimeout = 10;
+    
+        public const string Contact = "#09219370070 - Gabriel";
     }
 }

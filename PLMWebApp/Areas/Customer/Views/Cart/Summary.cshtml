@@ -1,4 +1,5 @@
-﻿@model PLM.Models.ViewModels.ShoppingCartVM
+﻿@using PLM.Utility
+@model PLM.Models.ViewModels.ShoppingCartVM
 
 @{
     ViewData["Title"] = "Reservation Summary";
@@ -138,7 +139,7 @@
                                     <strong class="text-info">@Model.ReservationHeader.OrderTotal.ToString("c")</strong>
                                 </li>
 								<li class="list-group-item d-flex justify-content-between bg-light">
-								<h5 class="text-danger">NOTICE: After placing a reservation, cancellation is handled by our Meatify Staff directly, please use our contact details for inquiries: #09219370070 - Gabriel</h5>
+								<h5 class="text-danger">NOTICE: After placing a reservation, cancellation is handled by our Meatify Staff directly, please use our contact details for inquiries: @SD.Contact</h5>
 								</li>
 							</ul>
                         </div>

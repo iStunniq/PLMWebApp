@@ -151,7 +151,7 @@ public class HomeController : Controller
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
-            if (user.EmailConfirmed)
+            if (user.EmailConfirmed && user.Warnings < 2)
             {
                 return Json(new { success = true });
             }

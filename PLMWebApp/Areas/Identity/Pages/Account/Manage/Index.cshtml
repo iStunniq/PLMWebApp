@@ -1,4 +1,5 @@
 ﻿@page
+@using PLM.Utility
 @model IndexModel
 @{
     ViewData["Title"] = "Profile";
@@ -11,11 +12,33 @@
     {
         <h5 class="text-danger">Please confirm your email to gain access to the website</h5>
     }
+
+    else if (Model.Input.Warnings == 2)
+    {
+        <h5 class="text-danger">Your account has been blocked for the given warnings.</h5><br/>
+        <h5 class="text-danger">Use this contact if you wish to appeal: @SD.Contact</h5>
+    }
     <partial name="_StatusMessage" for="StatusMessage" />
     <div class="row pt-4">
         <div class="col-md-7 row">
             <form id="profile-form" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @if (Model.Input.Warnings == 1)
+                {
+                    <div class="form-floating">
+                    <input asp-for="Input.Warning1" readonly class="form-control" aria-required="true" />
+                    <label>Warning 1</label>
+                    </div>
+                } else if(Model.Input.Warnings == 2){
+                    <div class="form-floating">
+                    <input asp-for="Input.Warning1" readonly class="form-control" aria-required="true" />
+                    <label>Warning 1</label>
+                    </div>
+                    <div class="form-floating">
+                    <input asp-for="Input.Warning2" readonly class="form-control" aria-required="true" />
+                    <label>Warning 2</label>
+                    </div>
+                }
                 <div class="form-floating">
                     <input asp-for="Input.Fname" class="form-control" aria-required="true" />
                     <label asp-for="Input.Fname"></label>

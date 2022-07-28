@@ -81,6 +81,9 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
 
             public bool Confirmed { get; set; }
 
+            public int Warnings { get; set; }
+            public string? Warning1 { get; set; }
+            public string? Warning2 { get; set; }
         }
 
         private async Task LoadAsync(IdentityUser user)
@@ -97,7 +100,10 @@ namespace PLMWebApp.Areas.Identity.Pages.Account.Manage
                 Address = applicationUser.Address,
                 City = applicationUser.City,
                 Zip = applicationUser.ZipCode,
-                Confirmed = applicationUser.EmailConfirmed
+                Confirmed = applicationUser.EmailConfirmed,
+                Warnings = applicationUser.Warnings,
+                Warning1 = applicationUser.Warning1,
+                Warning2 = applicationUser.Warning2
             };
         }
 

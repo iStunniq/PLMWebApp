@@ -1,0 +1,110 @@
+﻿@using PLM.Utility
+@model PLM.Models.ViewModels.UserVM
+
+@{
+    ViewData["Title"] = @Model.applicationUser.FirstName +" "+@Model.applicationUser.LastName;
+}
+
+<form method="post" asp-action="Update" enctype="multipart/form-data">
+    <input asp-for="applicationUser.Id" hidden />
+    <input asp-for="applicationUser.FirstName" hidden />
+    <input asp-for="applicationUser.LastName" hidden />
+    <input asp-for="applicationUser.Email" hidden />
+
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="col-12 pb-2">
+                    <h2 class="text-primary">Update User @Model.applicationUser.Email</h2>
+                </div>
+                <div class="mb-3">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label asp-for="applicationUser.Warnings"></label>
+                    <br />
+                    <input asp-for="applicationUser.Warnings" type="number" class="form-control" id="warning" placeholder="Warnings">
+                    <span asp-validation-for="applicationUser.Warnings" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label>Warning Reason 1:</label>
+                    <br />
+                    <input asp-for="applicationUser.Warning1" type="text" class="form-control" id="warn1">
+                    <span asp-validation-for="applicationUser.Warning1" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label>Warning Reason 2:</label>
+                    <br />
+                    <input asp-for="applicationUser.Warning2" type="text" class="form-control" id="warn2">
+                    <span asp-validation-for="applicationUser.Warnings" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label>User's Role</label>
+                    <br />
+                    @if (User.IsInRole(SD.Role_Admin))
+                    {
+                        <select asp-for="applicationUser.RoleName" asp-items="@Model.RolesList" class="form-select">
+                        </select>
+                    } else
+                    {
+                        <select asp-for="applicationUser.RoleName" asp-items="@Model.RolesList" class="form-select" disabled>
+                        </select>
+                    }
+                    <span asp-validation-for="applicationUser.RoleName" class="text-danger"></span>
+                
+                </div>
+                <div class="col-12">
+                        <button type="submit" onclick="return ValidateInput()" class="btn btn-primary" style="width: 150px">Update</button>
+                            <a asp-controller="Userlist" asp-action="Index" class="btn btn-secondary" style="width: 150px">Back To List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+
+@section Scripts{
+    @{
+    <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        //tinymce.init({
+        //    selector: 'textarea',
+        //    plugins: 'a11ychecker advcode casechange export formatpainter image editimage linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tableofcontents tinycomments tinymcespellchecker',
+        //    toolbar: 'a11ycheck addcomment showcomments casechange checklist code export formatpainter image editimage pageembed permanentpen table tableofcontents',
+        //    toolbar_mode: 'floating',
+        //    tinycomments_mode: 'embedded',
+        //    tinycomments_author: 'Author name',
+        //});
+
+        function ValidateInput(){
+            var a = document.getElementById("warning").value;
+            var b = document.getElementById("warn1").value;
+            var c = document.getElementById("warn2").value;
+
+            if (a == 1 && b == "") 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Add a reason for warning'
+                    });
+                return false;
+            }
+            if (a == 2 && (b == ""|| c == "")) 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Add a reason for warning'
+                    });
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

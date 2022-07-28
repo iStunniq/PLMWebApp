@@ -21,7 +21,7 @@ namespace PLM.Models
 
         [Required]
         [Display(Name = "Price")]
-        [Range(1, 30000)]
+        [Range(1, 300000)]
         public double Price { get; set; }
 
         [ValidateNever]

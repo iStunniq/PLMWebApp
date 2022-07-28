@@ -189,7 +189,7 @@ namespace PLMWebApp.Areas.Identity.Pages.Account
                 user.Address = Input.Address;
                 user.City = Input.City;
                 user.ZipCode = Input.ZipCode;
-
+                user.RoleName = Input.Role;
 
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
