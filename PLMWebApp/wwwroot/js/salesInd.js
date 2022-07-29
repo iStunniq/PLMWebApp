@@ -10,13 +10,14 @@ function loadDataTable() {
         "ajax": {
             "url":"/Admin/Sales/GetAll"
         },
+        order: [[0, 'desc']],
         "columns": [
+            { "data": "generationDate", "width": "20%" },
             { "data": "name", "width": "20%" },
             { "data": "reservationAmount", "width": "10%" },
             { "data": "grossIncome", "width": "10%" },
             { "data": "baseCosts", "width": "10%" },
             { "data": "netIncome", "width": "10%" },
-            { "data": "generationDate", "width": "20%" },
             {
                 "data": "id",
                 "render": function (data) {
@@ -37,6 +38,7 @@ function loadDataTable() {
                 "width": "20%"
             }
         ]
+        
     });
 }
 

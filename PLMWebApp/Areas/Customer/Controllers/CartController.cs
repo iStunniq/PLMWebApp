@@ -141,15 +141,6 @@ namespace PLMWebApp.Areas.Customer.Controllers
                 ShoppingCartVM.ReservationHeader.PaymentDueDate = ShoppingCartVM.ReservationHeader.PreferredDate;
                 ShoppingCartVM.ReservationHeader.GCashImageUrl = @"\images\CODDefault.png";
             }
-
-            IEnumerable<ApplicationUser> SalesEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
-            foreach (var man in SalesEmployees)
-            {
-                ReservationViewed view = new();
-                view.OrderId = ShoppingCartVM.ReservationHeader.Id;
-                view.AlertEmail = man.Email;
-                _unitOfWork.ReservationViewed.Add(view);
-            }
             ShoppingCartVM.ReservationHeader.BaseTotal = 0;
             _unitOfWork.ReservationHeader.Add(ShoppingCartVM.ReservationHeader);
             _unitOfWork.Save();
@@ -190,6 +181,14 @@ namespace PLMWebApp.Areas.Customer.Controllers
                 }
                 _unitOfWork.Product.Update(cart.Product);
                 _unitOfWork.Save();
+            }
+            IEnumerable<ApplicationUser> SalesEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
+            foreach (var man in SalesEmployees)
+            {
+                ReservationViewed view = new();
+                view.OrderId = ShoppingCartVM.ReservationHeader.Id;
+                view.AlertEmail = man.Email;
+                _unitOfWork.ReservationViewed.Add(view);
             }
             _unitOfWork.ShoppingCart.RemoveRange(ShoppingCartVM.ListCart);
             _unitOfWork.Save();

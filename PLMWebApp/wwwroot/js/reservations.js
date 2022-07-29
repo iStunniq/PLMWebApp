@@ -38,6 +38,7 @@ function loadDataTable(status) {
         "ajax": {
             "url":"/Admin/Reservation/GetAll?status=" + status
         },
+        order: [[0, 'desc']],
         "columns": [
             { "data": "id", "width": "5%" },
             { "data": "firstName", "width": "15%" },
