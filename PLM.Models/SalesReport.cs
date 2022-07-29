@@ -19,6 +19,8 @@ namespace PLM.Models
         [Display(Name = "To:")]
         public DateTime MaxDate { get; set; }
         public int ReservationAmount { get; set; }
+
+        public int CancelledAmount { get; set; }
         public double Overhead { get; set; }
         [Display(Name = "Initial Expenses")]
         public double? BaseCosts { get; set; }

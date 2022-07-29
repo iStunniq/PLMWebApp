@@ -38,6 +38,11 @@ public class SalesController : Controller
         SalesReport sales = _unitOfWork.SalesReport.GetFirstOrDefault(u => u.Id == id);
         return View(sales);
     }
+    public IActionResult SalesCancelled(int id)
+    {
+        SalesReport sales = _unitOfWork.SalesReport.GetFirstOrDefault(u => u.Id == id);
+        return View(sales);
+    }
     public bool ValidateRole(string email, string role)
     {
         var user = _userManager.FindByEmailAsync(email).Result;
@@ -45,6 +50,31 @@ public class SalesController : Controller
     }
 
     public IActionResult Details(int reservationId, int oid)
+    {
+        ReservationVM reservationVM = new ReservationVM()
+        {
+            ReservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == reservationId, includeProperties: "ApplicationUser"),
+            ReservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == reservationId, includeProperties: "Batch,Batch.Product"),
+            Carrier = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Courier)).Select(i => new SelectListItem
+            {
+                Text = i.Email,
+                Value = i.Id.ToString()
+            }),
+            oid = oid,
+        };
+
+        var claimsIdentity = (ClaimsIdentity)User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+        ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+        ReservationViewed view = _unitOfWork.ReservationViewed.GetFirstOrDefault(u => u.OrderId == reservationId && u.AlertEmail == user.Email);
+        if (view != null)
+        {
+            _unitOfWork.ReservationViewed.Remove(view);
+            _unitOfWork.Save();
+        }
+        return View(reservationVM);
+    }
+    public IActionResult Details2(int reservationId, int oid)
     {
         ReservationVM reservationVM = new ReservationVM()
         {
@@ -99,7 +129,10 @@ public class SalesController : Controller
             if (sales.Id == 0)
             {
                 IEnumerable<ReservationHeader> salesItem = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
+                IEnumerable<ReservationHeader> cancelItem = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCancelled).Where(u => u.CancelDate >= sales.MinDate).Where(u => u.CancelDate <= sales.MaxDate);
+
                 sales.ReservationAmount = salesItem.Count();
+                sales.CancelledAmount = cancelItem.Count();
                 sales.BaseCosts = 0;
                 foreach (var head in salesItem)
                 {
@@ -180,6 +213,31 @@ public class SalesController : Controller
     {
         SalesReport sales = _unitOfWork.SalesReport.GetFirstOrDefault(u => u.Id == id);
         IEnumerable<ReservationHeader> reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted,includeProperties:("ApplicationUser")).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
+
+        foreach (var head in reservationHeaders)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+            ReservationViewed view = _unitOfWork.ReservationViewed.GetFirstOrDefault(u => u.OrderId == head.Id && u.AlertEmail == user.Email);
+            if (view != null)
+            {
+                head.Viewed = false;
+            }
+            else
+            {
+                head.Viewed = true;
+            }
+
+            _unitOfWork.Save();
+        };
+
+        return Json(new { data = reservationHeaders });
+    }
+    public IActionResult GetAll3(int id)
+    {
+        SalesReport sales = _unitOfWork.SalesReport.GetFirstOrDefault(u => u.Id == id);
+        IEnumerable<ReservationHeader> reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCancelled, includeProperties: ("ApplicationUser")).Where(u => u.CancelDate >= sales.MinDate).Where(u => u.CancelDate <= sales.MaxDate);
 
         foreach (var head in reservationHeaders)
         {

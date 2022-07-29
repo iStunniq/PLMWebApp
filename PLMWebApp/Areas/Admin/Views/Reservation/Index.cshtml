@@ -7,6 +7,7 @@
     var inprocess = "text-primary";
     var shipped = "text-primary";
     var completed = "text-primary";
+    var cancelled = "text-primary";
     var all = "text-primary";
 
     switch (status)
@@ -25,6 +26,9 @@
             break;
         case "completed":
             completed = "active text-white";
+            break;
+        case "cancelled":
+            cancelled = "active text-white";
             break;
         default: 
             all = "active text-white";
@@ -56,6 +60,9 @@
                 <a style="text-decoration:none;" asp-controller="Reservation" asp-action="Index" asp-route-status="completed">
                     <li class="list-group-item @completed">Completed</li>
                 </a>
+                <a style="text-decoration:none;" asp-controller="Reservation" asp-action="Index" asp-route-status="cancelled">
+                    <li class="list-group-item @cancelled">Cancelled</li>
+                </a>
                 <a style="text-decoration:none;" asp-controller="Reservation" asp-action="Index" asp-route-status="all">
                     <li class="list-group-item @all">All</li>
                 </a>
@@ -69,13 +76,13 @@
         <thead>
             <tr>
                 <th>
+                    Ordered Date
+                </th>
+                <th>
+                    Shipping Date
+                </th>
+                <th>
                     ID
-                </th>
-                <th>
-                    First Name
-                </th>
-                <th>
-                    Last Name
                 </th>
                 <th>
                     Phone #
@@ -93,10 +100,9 @@
             </tr>
         </thead>
     </table>
-
 </div>
 
 
 @section Scripts{
-    <script src="~/js/reservations.js"></script>
+    <script src="~/js/reserved.js"></script>
 }

@@ -27,6 +27,8 @@ $(document).ready(function () {
         loadDataTable("approval");
     } else if (url.includes("shipped")) {
         loadDataTable("shipped");
+    } else if (url.includes("cancelled")) {
+        loadDataTable("cancelled");
     } else {
         loadDataTable("all");
     }
@@ -40,9 +42,9 @@ function loadDataTable(status) {
         },
         order: [[0, 'desc']],
         "columns": [
+            { "data": "orderDate", "width": "15%" },
+            { "data": "shippingDate", "width": "15%" },
             { "data": "id", "width": "5%" },
-            { "data": "firstName", "width": "15%" },
-            { "data": "lastName", "width": "15%" },
             { "data": "phone", "width": "15%" },
             { "data": "applicationUser.email", "width": "15%" },
             { "data": "orderStatus", "width": "15%" },

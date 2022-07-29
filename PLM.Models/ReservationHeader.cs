@@ -22,6 +22,8 @@ namespace PLM.Models
 
         public DateTime ShippingDate { get; set; }
 
+        public DateTime CancelDate { get; set; }
+
         public double OrderTotal { get; set; }
 
         public double BaseTotal { get; set; }

@@ -40,15 +40,15 @@
                 </div>
                 <div class="mb-3">
                     @*<div asp-validation-summary="All"></div>*@
-                    <label>User's Role</label>
-                    <br />
                     @if (User.IsInRole(SD.Role_Admin))
                     {
+                        <label>User's Role</label>
+                        <br />
                         <select asp-for="applicationUser.RoleName" asp-items="@Model.RolesList" class="form-select">
                         </select>
                     } else
                     {
-                        <select asp-for="applicationUser.RoleName" asp-items="@Model.RolesList" class="form-select" disabled>
+                        <select asp-for="applicationUser.RoleName" asp-items="@Model.RolesList" class="form-select" hidden>
                         </select>
                     }
                     <span asp-validation-for="applicationUser.RoleName" class="text-danger"></span>

@@ -35,6 +35,11 @@ namespace PLMWebApp.Areas.Admin.Controllers
             return _userManager.IsInRoleAsync(user, role).Result;
         }
 
+        public DateTime ToSeconds(DateTime time)
+        {
+            return new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Kind);
+        }
+
         public void AlertLogistics(ReservationHeader reservationHeader)
         {
             IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
@@ -68,10 +73,16 @@ namespace PLMWebApp.Areas.Admin.Controllers
             foreach (SalesReport sales in salesReport)
             {
                 IEnumerable<ReservationHeader> salesItems = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
+                IEnumerable<ReservationHeader> cancelItems = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCancelled).Where(u => u.CancelDate >= sales.MinDate).Where(u => u.CancelDate <= sales.MaxDate);
                 sales.ReservationAmount = 0;
                 foreach (var item in salesItems)
                 {
                     sales.ReservationAmount += 1;
+                }
+                sales.CancelledAmount = 0;
+                foreach (var item in cancelItems)
+                {
+                    sales.CancelledAmount += 1;
                 }
                 sales.BaseCosts = 0;
                 foreach (var item in salesItems)
@@ -86,6 +97,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 sales.NetIncome = sales.GrossIncome - sales.BaseCosts - sales.Overhead;
             }
         }
+
         public IActionResult Index()
         {
             return View();
@@ -190,7 +202,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusApproval;
-            reservationHeaderFromDb.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
+            reservationHeaderFromDb.ShippingDate = ToSeconds(ReservationVM.ReservationHeader.ShippingDate);
             reservationHeaderFromDb.Carrier = ReservationVM.ReservationHeader.Carrier;
             ApplicationUser carrier = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Carrier);
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
@@ -228,7 +240,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties:("ApplicationUser"),tracked: false);
 
             reservationHeader.OrderStatus = SD.StatusInProcess;
-            reservationHeader.ShippingDate = ReservationVM.ReservationHeader.ShippingDate;
+            reservationHeader.ShippingDate = ToSeconds(ReservationVM.ReservationHeader.ShippingDate);
 
             _unitOfWork.ReservationHeader.Update(reservationHeader);
 
@@ -321,10 +333,10 @@ namespace PLMWebApp.Areas.Admin.Controllers
             //_unitOfWork.ReservationHeader.UpdateStatus(ReservationVM.ReservationHeader.Id, SD.StatusInProcess);
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusCompleted;
-            reservationHeaderFromDb.ShippingDate = DateTime.Now;
+            reservationHeaderFromDb.ShippingDate = ToSeconds(DateTime.Now);
             if (reservationHeaderFromDb.COD)
             {
-                reservationHeaderFromDb.PaymentDate = DateTime.Now;
+                reservationHeaderFromDb.PaymentDate = ToSeconds(DateTime.Now);
                 reservationHeaderFromDb.PaymentStatus = SD.PaymentStatusApproved;
             }
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
@@ -373,17 +385,17 @@ namespace PLMWebApp.Areas.Admin.Controllers
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Logistics + "," + SD.Role_Sales + "," + SD.Role_Courier)]
         [ValidateAntiForgeryToken]
-        public IActionResult CancelOrder(IFormFile file)
+        public IActionResult CancelOrder()
         {
             var reservationHeader = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id,includeProperties:"ApplicationUser", tracked: false);
             IEnumerable<ReservationDetail> reservationDetail = _unitOfWork.ReservationDetail.GetAll(u => u.OrderId == ReservationVM.ReservationHeader.Id, includeProperties: "Batch,Batch.Product");
             reservationHeader.OrderStatus = SD.StatusCancelled;
             reservationHeader.PaymentStatus = SD.PaymentStatusRefunded;
+            reservationHeader.CancelDate = ToSeconds(DateTime.Now);
             if (reservationHeader.COD) { 
                 reservationHeader.PaymentStatus = SD.PaymentStatusRejected;
             };
             reservationHeader.CancelReason = ReservationVM.ReservationHeader.CancelReason;
-
             foreach (ReservationDetail detail in reservationDetail) {
                 detail.Batch.Stock += detail.Count;
                 _unitOfWork.Product.Update(detail.Batch.Product);
@@ -393,14 +405,13 @@ namespace PLMWebApp.Areas.Admin.Controllers
 
             _unitOfWork.Save();
             TempData["Success"] = "Reservation is Cancelled; Status Updated Successfully";
-
+            UpdateReports();
             _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeader.Id));
             ReservationViewed view = new();
             view.OrderId = reservationHeader.Id;
             view.AlertEmail = reservationHeader.ApplicationUser.Email;
             _unitOfWork.ReservationViewed.Add(view);
             _unitOfWork.Save();
-
             ReservationHeader reservationHeader2 = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser");
             _emailSender.SendEmailAsync(reservationHeader2.ApplicationUser.Email, "Reservation Cancelled - Meatify", $"<p><h3>Your reservation was cancelled, {reservationHeader2.ApplicationUser.FirstName}. " +
                 $"This is for Reservation # {ReservationVM.ReservationHeader.Id}. </p> <p>Your reservation was cancelled with the reason of {reservationHeader2.CancelReason}, check your reservations.</p> <p><em>NOTICE: Regarding any concern/feedback, it is handled by our Meatify Staff directly</em></p>" +
@@ -412,12 +423,12 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
             };
 
-            IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
+            //IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
 
-            foreach (var man in logEmployees)
-            {
-                _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
-            };
+            //foreach (var man in logEmployees)
+            //{
+            //    _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
+            //};
 
             IEnumerable<ApplicationUser> salEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
 
@@ -470,6 +481,9 @@ namespace PLMWebApp.Areas.Admin.Controllers
                     break;
                 case "completed":
                     reservationHeaders = reservationHeaders.Where(u => u.OrderStatus == SD.StatusCompleted);
+                    break;
+                case "cancelled":
+                    reservationHeaders = reservationHeaders.Where(u => u.OrderStatus == SD.StatusCancelled);
                     break;
                 default:
                     break;

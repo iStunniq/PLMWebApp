@@ -1,16 +1,18 @@
-﻿@{
-    ViewData["Title"] = "Sales Reports";
+﻿@model PLM.Models.SalesReport
+
+@{
+    ViewData["Title"] = "Reservations Report " + @Model.Name;
 }
 
 <div class="container p-3">
-
+    <input asp-for="Name" hidden/>
     <div class="row pt-4"> 
         <div class="col-6">
-            <h2 class="text-primary">Sales Reports</h2>
+            <h2 class="text-primary">Reservations for Sales Report @Model.Name</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="Sales" asp-action="Upsert" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> &nbsp; Generate Sales Report
+            <a asp-controller="Sales" asp-action="Index" class="btn btn-primary">
+                Return
             </a>
         </div>
     </div>
@@ -21,25 +23,19 @@
         <thead>
             <tr>
                 <th>
-                    Generation Date
+                    Cancel Date
                 </th>
                 <th>
-                    Name
+                    ID
                 </th>
                 <th>
-                    Compeleted
+                    Email
                 </th>
                 <th>
-                    Cancelled
+                    Phone #
                 </th>
                 <th>
-                    Gross Income
-                </th>
-                <th>
-                    Base Expense
-                </th>
-                <th>
-                    Net Profit
+                    Cancel Reason
                 </th>
                 <th></th>
             </tr>
@@ -50,5 +46,6 @@
 
 
 @section Scripts{
-    <script src="~/js/salesInd.js"></script>
+    <script> var reportId = @Model.Id</script>
+    <script src="~/js/salescancelled.js"></script>
 }

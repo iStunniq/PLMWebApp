@@ -38,6 +38,10 @@ namespace PLMWebApp.Areas.Customer.Controllers
             return _userManager.IsInRoleAsync(user, role).Result;
         }
 
+        public DateTime ToSeconds(DateTime time) {
+            return new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Kind);
+        }
+
         public IActionResult Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -110,8 +114,8 @@ namespace PLMWebApp.Areas.Customer.Controllers
 
             ShoppingCartVM.ReservationHeader.PaymentStatus = SD.PaymentStatusPending;
             ShoppingCartVM.ReservationHeader.OrderStatus = SD.StatusPending;
-            ShoppingCartVM.ReservationHeader.OrderDate = System.DateTime.Now;
-            ShoppingCartVM.ReservationHeader.ShippingDate = ShoppingCartVM.ReservationHeader.PreferredDate;
+            ShoppingCartVM.ReservationHeader.OrderDate = ToSeconds(DateTime.Now);
+            ShoppingCartVM.ReservationHeader.ShippingDate = ToSeconds(ShoppingCartVM.ReservationHeader.PreferredDate);
             ShoppingCartVM.ReservationHeader.ApplicationUserId = claim.Value;
 
             ShoppingCartVM.ReservationHeader.OrderTotal = 0;
@@ -124,7 +128,7 @@ namespace PLMWebApp.Areas.Customer.Controllers
             string wwwRootPath = _hostEnvironment.WebRootPath;
             if (file != null && !ShoppingCartVM.ReservationHeader.COD)
             {
-                ShoppingCartVM.ReservationHeader.PaymentDate = System.DateTime.Now;
+                ShoppingCartVM.ReservationHeader.PaymentDate = ToSeconds(DateTime.Now);
                 string fileName = Guid.NewGuid().ToString();
                 var uploads = Path.Combine(wwwRootPath, @"images\gcash");
                 var extension = Path.GetExtension(file.FileName);
