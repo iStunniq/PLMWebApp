@@ -1,0 +1,111 @@
+﻿@model PLM.Models.DeliveryReport
+
+@{
+    ViewData["Title"] = "Reservations Report " + @Model.Name;
+}
+
+<div class="container p-3">
+    <input asp-for="Name" hidden />
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Reservations for Delivery @Model.Name</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Delivery" asp-action="Index" class="btn btn-primary">
+                Return
+            </a>
+        </div>
+    </div>
+
+    <br />
+
+    <table id="tblData" class="table table-hover" style="width: 100%">
+        <thead>
+            <tr>
+                <th>
+                    Ship Date
+                </th>
+                <th>
+                    ID
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Phone #
+                </th>
+                <th>
+                    Total
+                </th>
+                <th>
+                    COD
+                </th>
+                <th>
+                    Courier
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+
+@section Scripts{
+    <script>
+        var dataTable;
+
+        $(document).ready(function() {
+            loadDataTable();
+        });
+
+        function loadDataTable() {
+            dataTable = $('#tblData').DataTable({
+
+                "ajax": {
+                    "url": "/Admin/Delivery/GetAll2?id=" + @Model.Id
+                },
+                order: [[0, 'desc']],
+                "columns": [
+                    { "data": "reservationHeader.shippingDate", "width": "15%" },
+                    { "data": "reservationHeader.id", "width": "5%" },
+                    { "data": "reservationHeader.applicationUser.email", "width": "20%" },
+                    { "data": "reservationHeader.phone", "width": "15%" },
+                    { "data": "reservationHeader.orderTotal", "width": "10%" },
+                    { "data": "reservationHeader.cod", "width": "10%" },
+                    { "data": "reservationHeader.carrier", "width": "10%" },
+                    { "data": "reservationHeader.orderStatus", "width": "10%" },
+                    {
+                        "data": "reservationHeader.id",
+                        "render": function(data, type, row) {
+                            if (row["reservationHeader"]["viewed"]) {
+                                return `
+                                <div class="w-75 btn-group" role="group">
+                                    <a href="/Admin/Delivery/Details?reservationId=${data}&oid=${@Model.Id}" class="btn btn-info mx-2">
+                                        <i class="bi bi-pencil-square"> </i> Details
+                                    </a>
+                                </div>
+                                `
+                            }
+                            else {
+                                return `
+                                <div class="w-75 btn-group" role="group">
+                                    <a href="/Admin/Delivery/Details?reservationId=${data}&oid=${@Model.Id}" class="btn btn-success mx-2">
+                                        <i class="bi bi-plus"> </i> New
+                                    </a>
+                                </div>
+                                `
+                            }
+                        },
+                        "width": "5%"
+                    }
+                ]
+            });
+        }
+    </script>
+}

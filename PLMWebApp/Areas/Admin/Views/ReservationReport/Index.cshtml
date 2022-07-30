@@ -1,0 +1,115 @@
+﻿@{
+    ViewData["Title"] = "Reservation Reports";
+}
+
+<div class="container p-3">
+
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Reservation Reports</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="ReservationReport" asp-action="Upsert" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Generate Report
+            </a>
+        </div>
+    </div>
+
+    <br />
+
+    <table id="tblData" class="table table-hover" style="width: 100%">
+        <thead>
+            <tr>
+                <th>
+                    Generation Date
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Reservations
+                </th>
+                <th>
+                    For Status
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+
+@section Scripts{
+    <script>
+        var dataTable;
+
+        $(document).ready(function() {
+            loadDataTable();
+        });
+
+        function loadDataTable() {
+            dataTable = $('#tblData').DataTable({
+
+                "ajax": {
+                    "url": "/Admin/ReservationReport/GetAll"
+                },
+                order: [[0, 'desc']],
+                "columns": [
+                    { "data": "generationDate", "width": "20%" },
+                    { "data": "name", "width": "20%" },
+                    { "data": "reservationAmount", "width": "10%" },
+                    { "data": "reservationStatus", "width": "10%" },
+                    {
+                        "data": "id",
+                        "render": function(data) {
+                            return `
+                                <div class="w-75 btn-group" role="group">
+                                    <a href="/Admin/ReservationReport/Upsert?id=${data}" class="btn btn-info mx-2">
+                                        <i class="bi bi-pencil-square"> </i> Edit
+                                    </a>
+                                    <a href="/Admin/ReservationReport/Reservations?id=${data}" class="btn btn-success mx-2">
+                                        <i class="bi bi-bag-check"> </i> Items
+                                    </a>
+                                    <a onclick="Delete('/Admin/ReservationReport/Delete/+${data}')" class="btn btn-warning mx-2">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                                `
+                        },
+                        "width": "20%"
+                    }
+                ]
+
+            });
+        }
+
+        function Delete(url) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Reports are permanently deleted",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        success: function(data) {
+                            if (data.success) {
+                                dataTable.ajax.reload();
+                                toastr.success(data.message);
+                            }
+                            else {
+                                toastr.error(data.message);
+                            }
+                        }
+                    })
+                }
+            })
+        }
+    </script>
+}

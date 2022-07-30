@@ -28,6 +28,11 @@ namespace PLM.DataAccess.Repository.IRepository
 
         ISalesReportRepository SalesReport { get; }
 
+        IDeliveryReportRepository DeliveryReport { get; }
+        IReservationReportRepository ReservationReport { get; }
+        IReportDetailRepository ReportDetail { get; }
+        IInventoryReportRepository InventoryReport { get; }
+        IInvReportDetailRepository InvReportDetail { get; }
         void Save();
     }
 }

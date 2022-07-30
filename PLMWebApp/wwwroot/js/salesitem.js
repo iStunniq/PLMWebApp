@@ -16,7 +16,14 @@ function loadDataTable() {
             { "data": "applicationUser.email", "width": "20%" },
             { "data": "phone", "width": "15%" },
             { "data": "orderTotal", "width": "10%" },
-            { "data": "baseTotal","width": "10%" },
+            { "data": "baseTotal", "width": "10%" },
+            {
+                "data": "id",
+                "render": function (data, type, row) {
+                    return row["orderTotal"] - row["baseTotal"]
+                },
+                "width": "10%"
+            },
             {
                 "data": "id",
                 "render": function (data,type,row) {

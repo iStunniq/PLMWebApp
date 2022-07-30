@@ -23,6 +23,11 @@ namespace PLM.DataAccess.Repository
             ReservationHeader = new ReservationHeaderRepository(_db);
             ReservationDetail = new ReservationDetailRepository(_db);
             SalesReport = new SalesReportRepository(_db);
+            DeliveryReport = new DeliveryReportRepository(_db);
+            ReservationReport = new ReservationReportRepository(_db);
+            ReportDetail = new ReportDetailRepository(_db);
+            InventoryReport = new InventoryReportRepository(_db);
+            InvReportDetail = new InvReportDetailRepository(_db);
             ReservationViewed = new ReservationViewedRepository(_db);
         }
 
@@ -44,6 +49,16 @@ namespace PLM.DataAccess.Repository
         public IReservationDetailRepository ReservationDetail { get; private set; }
 
         public ISalesReportRepository SalesReport { get; private set; }
+
+        public IDeliveryReportRepository DeliveryReport { get; private set; }
+
+        public IReservationReportRepository ReservationReport { get; private set; }
+
+        public IReportDetailRepository ReportDetail { get; private set; }
+
+        public IInventoryReportRepository InventoryReport { get; private set; }
+
+        public IInvReportDetailRepository InvReportDetail { get; private set; }
 
         public IReservationViewedRepository ReservationViewed { get; private set; }
 

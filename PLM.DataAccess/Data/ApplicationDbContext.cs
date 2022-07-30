@@ -21,7 +21,16 @@ namespace PLM.DataAccess
 
         public DbSet<SalesReport> SalesReports { get; set; }
 
+        public DbSet<DeliveryReport> DeliveryReports { get; set; }
+
+        public DbSet<InventoryReport> InventoryReports { get; set; }
+        public DbSet<InvReportDetail> InvReportDetails { get; set; }
+
+        public DbSet<ReservationReport> ReservationReports { get; set; }
+        public DbSet<ReportDetail> ReportDetails { get; set; }
         public DbSet<ReservationHeader> ReservationHeaders { get; set; }
+
+
 
         public DbSet<ReservationDetail> ReservationDetails { get; set; }
         

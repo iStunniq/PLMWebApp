@@ -1,0 +1,291 @@
+﻿@model PLM.Models.ViewModels.ReservationVM
+@using PLM.Utility
+@{
+	ViewData["Title"] = "Reservation";
+}
+
+<form method="post" id="form" asp-action="CancelOrder" enctype="multipart/form-data">
+	<input asp-for="ReservationHeader.Id" hidden/>
+	<br />
+	<div class="container">
+		<div class="card">
+			<div class="card-header bg-primary text-light ml-0 row container">
+				<div class="col-12 d-none d-md-block col-md-6 pb-1">
+					<i class="fas fa-shopping-cart"></i> &nbsp; Reservation Summary
+				</div>
+				<div class="col-12 col-md-4 offset-md-2 text-right">
+					<a asp-action="Reservations" asp-route-id="@Model.oid" class="btn btn-info form-control btn-sm">Back to Reservation Report</a>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="container rounded p-2">
+					<div class="row">
+						<div class="col-12 col-lg-6 pb-4">
+							<div class="row">
+								<h4 class="d-flex justify-content-between align-items-center mb-3">
+									<span class="text-primary">Shipping Details: </span>
+								</h4>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">First Name</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.FirstName" type="text" class="form-control" readonly />
+										<span asp-validation-for="ReservationHeader.FirstName" class="text-danger"></span>
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.FirstName" type="text" class="form-control" readonly />
+									}
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Last Name</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.LastName" type="text" class="form-control" readonly />
+										<span asp-validation-for="ReservationHeader.LastName" class="text-danger"></span>
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.LastName" type="text" class="form-control" readonly />
+									}
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Phone #</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.Phone" type="text" class="form-control" readonly/>
+										<span asp-validation-for="ReservationHeader.Phone" class="text-danger"></span>
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.Phone" type="text" class="form-control" readonly />
+									}
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Address</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.Address" type="text" class="form-control" readonly />
+										<span asp-validation-for="ReservationHeader.Address" class="text-danger"></span>
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.Address" type="text" class="form-control" readonly />
+									}
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">City</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.City" type="text" class="form-control" readonly />
+										<span asp-validation-for="ReservationHeader.City" class="text-danger"></span>
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.City" type="text" class="form-control" readonly />
+									}
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Zip Code</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.ZipCode" type="text" class="form-control" readonly />
+										<span asp-validation-for="ReservationHeader.ZipCode" class="text-danger"></span>
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.ZipCode" type="text" class="form-control" readonly />
+									}
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Email</div>
+								<div class="col-9">
+										<input asp-for="ReservationHeader.ApplicationUser.Email" read-only type="text" class="form-control" readonly />
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Order Date</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.OrderDate" type="datetime-local" class="form-control" readonly/>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Preferred Shipping Date</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.PreferredDate" type="datetime-local" class="form-control" readonly/>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Carrier</div>
+								<div class="col-9">
+									<select id="carrier" asp-for="ReservationHeader.Carrier" asp-items="@Model.Carrier" class="form-select" disabled>
+										<option disabled value="0" selected>--Carrier Selection--</option>
+									</select>
+								</div>
+							</div>
+							@*<div class="row my-1">
+								<div class="col-3">Tracking</div>
+								<div class="col-9">
+									@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Sales) || User.IsInRole(SD.Role_Marketing) || User.IsInRole(SD.Role_Logistics) || User.IsInRole(SD.Role_Courier))
+									{
+										<input asp-for="ReservationHeader.TrackingNumber" id="trackingNumber" type="text" class="form-control" />
+									}
+									else
+									{
+										<input asp-for="ReservationHeader.TrackingNumber" read-only type="text" class="form-control" />
+									}
+								</div>
+							</div>*@
+							<div class="row my-1">
+								<div class="col-3">Shipping Date</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.ShippingDate" type="datetime-local" class="form-control" readonly />
+								</div>
+							</div>
+							@*<div class="row my-1">
+								<div class="col-3">Transaction ID</div>
+								<div class="col-9">
+									<input type="text" readonly class="form-control" />
+								</div>
+							</div>*@
+							<div class="row my-1">
+								@if(Model.ReservationHeader.GCashImageUrl == null)
+								{
+									<div class="col-3">Payment Due Date</div>
+									<div class="col-9">
+										<input readonly class="form-control" />
+									</div>
+								}
+								else
+								{
+									<div class="col-3">Payment Date</div>
+									<div class="col-9">
+										<input asp-for="ReservationHeader.PaymentDate" type="datetime-local" readonly id="paymentDate" class="form-control" />
+									</div>
+								}
+							</div>
+							<div class="row my-1">
+								<div class="col-3">GCash Image</div>
+								<div class="col-9">
+									<img src="@Model.ReservationHeader.GCashImageUrl" width="100%" style="border-radius:5px; border: 1px solid #bbb9b9"/>
+								</div>
+							</div>
+							<div class="row my-1">
+								<div class="col-3">Payment Status</div>
+								<div class="col-9">
+									<input asp-for="ReservationHeader.PaymentStatus" type="text" readonly class="form-control" />
+								</div>
+							</div>
+
+						</div>
+						<div class="col-12 col-lg-5 offset-lg-1">
+							<h4 class="d-flex justify-content-between align-items-center mb-3">
+								<span class="text-primary">Reservation Summary</span>
+							</h4>
+							<label class="btn btn-outline-primary form-control my-2">Reservation Status - @Model.ReservationHeader.OrderStatus </label>
+							@if (Model.ReservationHeader.OrderStatus == SD.StatusCancelled)
+							{
+								<label class="btn btn-outline-primary form-control my-2">Reason for Cancel - @Model.ReservationHeader.CancelReason </label>
+							}
+							<ul class="list-group mb-3">
+
+								@foreach (var detail in Model.ReservationDetail)
+								{
+									<li class="list-group-item d-flex justify-content-between p-2">
+										<div class="row container">
+											<div class="col-6">
+												<h6 class="my-0 text-primary">@detail.Batch.Product.Name</h6>
+												<small class="text-muted"> Price : @detail.Batch.Product.Price.ToString("c") </small><br />
+												<small class="text-muted"> Quantity : @detail.Count </small><br />
+												<small class="text-muted"> Batch No. : @detail.Batch.Id </small>
+											</div>
+											<div class="col-6 text-end">
+												<p class="text-yellow"> @((detail.Count * detail.Price).ToString("c")) </p>
+											</div>
+										</div>
+									</li>
+								}
+
+								<li class="list-group-item bg-info">
+									<div class="row container">
+										<div class="col-6">
+											<h5 class="text-white">TOTAL </h5>
+										</div>
+										<div class="col-6 text-end">
+											<h5 class="text-white">@Model.ReservationHeader.OrderTotal.ToString("c")</h5>
+										</div>
+									</div>
+								</li>
+								<a asp-area="Admin" asp-controller="Reservation" asp-action="Details" asp-route-reservationId="@Model.ReservationHeader.Id" class="btn btn-primary form-control btn-sm">Go to this Reservation</a>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+@section Scripts{
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		function ValidateInput(){
+            if (document.getElementById("carrier").value == "0") 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Please input carrier'
+                    });
+                return false;
+            }
+            return true;
+        }
+	</script>
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		async function AddReason() {
+			event.preventDefault()
+
+			const { value: CanRes } = await Swal.fire({
+                title: 'Cancel Reason',
+                input: 'text',
+                inputLabel: 'Enter a cancellation reason',
+                inputValue: "",
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please write a reason';
+                    } else {
+                        document.getElementById("canres").value = value;
+                        var form = document.getElementById("form");
+                        var formdata = $(form).serialize();
+
+						$.ajax({
+							url: "/Admin/Reservation/CancelOrder",
+							type:'POST',
+							data: formdata,
+							success: function(result){
+								location.reload()
+							}
+						});
+					}
+                }
+            })
+		}
+	</script>
+}

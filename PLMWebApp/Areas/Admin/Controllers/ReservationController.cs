@@ -113,7 +113,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 Carrier = _unitOfWork.ApplicationUser.GetAll().Where(u=>ValidateRole(u.Email,SD.Role_Courier)).Select(i => new SelectListItem
                 {
                     Text = i.Email,
-                    Value = i.Id.ToString()
+                    Value = i.Email
                 }),
             };
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -204,7 +204,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
             reservationHeaderFromDb.OrderStatus = SD.StatusApproval;
             reservationHeaderFromDb.ShippingDate = ToSeconds(ReservationVM.ReservationHeader.ShippingDate);
             reservationHeaderFromDb.Carrier = ReservationVM.ReservationHeader.Carrier;
-            ApplicationUser carrier = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Carrier);
+            ApplicationUser carrier = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Email == ReservationVM.ReservationHeader.Carrier);
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
 

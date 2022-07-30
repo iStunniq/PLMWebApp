@@ -1,0 +1,98 @@
+﻿@using PLM.Utility
+@model PLM.Models.ReservationReport
+
+@{
+    ViewData["Title"] = "Product";
+}
+
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    <input hidden asp-for="Id"/>
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="col-12 pb-2">
+                    <h2 class="text-primary">@(Model.Id != 0? "Update" : "Generate New") Reservation Report</h2>
+                </div>
+                <div class="mb-3">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label asp-for="Name"></label>
+                    <br />
+                    <input asp-for="Name" type="text" class="form-control" id="floatingInput" placeholder="Reservation Report Label">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3 col-6">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label asp-for="MinDate"></label>
+                    <br />
+                    <input type="datetime-local" asp-for="MinDate" class="form-select" id="min">
+                    <span asp-validation-for="MinDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3 col-6">
+                    @*<div asp-validation-summary="All"></div>*@
+                      <label asp-for="MaxDate"></label>
+                    <br />
+                    <input type="datetime-local" asp-for="MaxDate" class="form-select" id="max">
+                    <span asp-validation-for="MaxDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3 col-6">
+                    @*<div asp-validation-summary="All"></div>*@
+                      <label asp-for="ReservationStatus"></label>
+                    <br />
+                    <select asp-for="ReservationStatus" class="form-select">
+                        <option disabled selected>--Select Status--</option>
+                        <option value="@SD.StatusPending">@SD.StatusPending</option>
+                        <option value="@SD.StatusInProcess">@SD.StatusInProcess</option>
+                        <option value="@SD.StatusApproval">@SD.StatusApproval</option>
+                        <option value="@SD.StatusShipped">@SD.StatusShipped</option>
+                        <option value="@SD.StatusCompleted">@SD.StatusCompleted</option>
+                        <option value="@SD.StatusCancelled">@SD.StatusCancelled</option>
+                    </select>
+                    <span asp-validation-for="ReservationStatus" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    @if (Model.Id != 0)
+                    {
+                        <button type="submit" class="btn btn-primary" style="width: 150px">Update</button>
+                    }
+                    else
+                    {
+                        <button type="submit" onclick="return ValidateInput()" class="btn btn-primary" style="width: 150px">Generate</button>
+                    }
+                    <a asp-controller="Delivery" asp-action="Index" class="btn btn-secondary" style="width: 150px">Back To List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+
+@section Scripts{
+    @{
+    <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        //tinymce.init({
+        //    selector: 'textarea',
+        //    plugins: 'a11ychecker advcode casechange export formatpainter image editimage linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tableofcontents tinycomments tinymcespellchecker',
+        //    toolbar: 'a11ycheck addcomment showcomments casechange checklist code export formatpainter image editimage pageembed permanentpen table tableofcontents',
+        //    toolbar_mode: 'floating',
+        //    tinycomments_mode: 'embedded',
+        //    tinycomments_author: 'Author name',
+        //});
+
+        function ValidateInput(){
+            if (document.getElementById("min").value => document.getElementById("max").value) 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: '"From:" value needs to be earlier than the "To:" value'
+                    });
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

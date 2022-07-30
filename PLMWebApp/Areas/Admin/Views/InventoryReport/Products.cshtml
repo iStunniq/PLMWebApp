@@ -1,0 +1,95 @@
+﻿@model PLM.Models.InventoryReport
+
+@{
+    ViewData["Title"] = "Inventory Report " + @Model.Name;
+}
+
+<div class="container p-3">
+    <input asp-for="Name" hidden />
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Products for Report @Model.Name</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="InventoryReport" asp-action="Index" class="btn btn-primary">
+                Return
+            </a>
+        </div>
+    </div>
+
+    <br />
+
+    <table id="tblData" class="table table-hover" style="width: 100%">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Stock
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Expiration
+                </th>
+                <th>
+                    Price
+                </th>
+                <th>
+                    Brand
+                </th>
+                <th>
+                    Category
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+
+@section Scripts{
+    <script>
+        var dataTable;
+
+        $(document).ready(function() {
+            loadDataTable();
+        });
+
+        function loadDataTable() {
+            dataTable = $('#tblData').DataTable({
+
+                "ajax": {
+                    "url": "/Admin/InventoryReport/GetAll2?id=" + @Model.Id
+                },
+                "columns": [
+                    { "data": "productName", "width": "15%" },
+                    { "data": "productStock", "width": "5%" },
+                    { "data": "productStatus", "width": "20%" },
+                    { "data": "productExpiry", "width": "15%" },
+                    { "data": "productPrice", "width": "10%" },
+                    { "data": "productBrand", "width": "10%" },
+                    { "data": "productCategory", "width": "10%" },
+                    {
+                        "data": "id",
+                        "render": function(data, type, row) {
+                            return `
+                            <div class="w-75 btn-group" role="group">
+                                <a href="/Admin/InventoryReport/Batches?id=${row["reportId"]}&pid=${row["productId"]}" class="btn btn-info mx-2">
+                                    <i class="bi bi-pencil-square"> </i> Batches
+                                </a>
+                            </div>
+                            `
+                        },
+                        "width": "5%"
+                    }
+                ]
+            });
+        }
+    </script>
+}

@@ -1,0 +1,37 @@
+﻿@using PLM.Utility
+@model PLM.Models.InventoryReport
+
+@{
+    ViewData["Title"] = "Inventory";
+}
+
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    <input hidden asp-for="Id"/>
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="col-12 pb-2">
+                    <h2 class="text-primary">@(Model.Id != 0? "Update" : "Generate New") Inventory Report</h2>
+                </div>
+                <div class="mb-3">
+                    @*<div asp-validation-summary="All"></div>*@
+                    <label asp-for="Name"></label>
+                    <br />
+                    <input asp-for="Name" type="text" class="form-control" id="floatingInput" placeholder="Inventory Report Label">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    @if (Model.Id != 0)
+                    {
+                        <button type="submit" class="btn btn-primary" style="width: 150px">Update</button>
+                    }
+                    else
+                    {
+                        <button type="submit" onclick="return ValidateInput()" class="btn btn-primary" style="width: 150px">Generate</button>
+                    }
+                    <a asp-controller="InventoryReport" asp-action="Index" class="btn btn-secondary" style="width: 150px">Back To List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
