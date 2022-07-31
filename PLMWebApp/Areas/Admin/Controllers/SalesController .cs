@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using PLM.Utility;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using OfficeOpenXml;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
@@ -212,7 +213,7 @@ public class SalesController : Controller
     public IActionResult GetAll2(int id)
     {
         SalesReport sales = _unitOfWork.SalesReport.GetFirstOrDefault(u => u.Id == id);
-        IEnumerable<ReservationHeader> reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted,includeProperties:("ApplicationUser")).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
+        IEnumerable<ReservationHeader> reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted, includeProperties: ("ApplicationUser")).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
 
         foreach (var head in reservationHeaders)
         {
@@ -258,6 +259,101 @@ public class SalesController : Controller
         };
 
         return Json(new { data = reservationHeaders });
+    }
+
+    public IActionResult Excel(int id)
+    {
+        SalesReport report = _unitOfWork.SalesReport.GetFirstOrDefault(u => u.Id == id);
+        IEnumerable<ReservationHeader> Reservations = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted, includeProperties: ("ApplicationUser")).Where(u => u.ShippingDate >= report.MinDate).Where(u => u.ShippingDate <= report.MaxDate);
+        Reservations.OrderBy(u => u.ShippingDate);
+        ExcelPackage pack = new ExcelPackage();
+        ExcelWorksheet ws = pack.Workbook.Worksheets.Add("Report");
+
+        ws.Cells["A1"].Value = "Sales Report";
+        ws.Cells["B1"].Value = report.Name;
+        ws.Cells["C1"].Value = "Amount Completed";
+        ws.Cells["D1"].Value = report.ReservationAmount;
+        ws.Cells["A2"].Value = "Report Generated";
+        ws.Cells["B2"].Value = report.GenerationDate.ToString();
+        ws.Cells["C2"].Value = "Amount Cancelled";
+        ws.Cells["D2"].Value = report.CancelledAmount;
+        ws.Cells["A3"].Value = "Excel Generated";
+        var time = DateTime.Now;
+        ws.Cells["B3"].Value = new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Kind).ToString();
+        ws.Cells["A5:G5"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        ws.Cells["A5:G5"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+        ws.Cells["A4"].Value = "Completed Orders";
+        ws.Cells["A5"].Value = "Shipped Date";
+        ws.Cells["B5"].Value = "Order Id";
+        ws.Cells["C5"].Value = "Email";
+        ws.Cells["D5"].Value = "Phone#";
+        ws.Cells["E5"].Value = "Income";
+        ws.Cells["F5"].Value = "Expense";
+        ws.Cells["G5"].Value = "Net Profit";
+        var Row = 6;
+        foreach (var detail in Reservations)
+        {
+            ws.Cells["A" + Row].Value = detail.ShippingDate.ToString();
+            ws.Cells["B" + Row].Value = detail.Id;
+            ws.Cells["C" + Row].Value = detail.ApplicationUser.Email;
+            ws.Cells["D" + Row].Value = detail.Phone;
+            ws.Cells["E" + Row].Value = detail.OrderTotal;
+            ws.Cells["F" + Row].Value = detail.BaseTotal;
+            ws.Cells["G" + Row].Value = detail.OrderTotal - detail.BaseTotal;
+            Row++;
+        }
+        ws.Cells["A" + Row].Value = "Total:";
+        ws.Cells["B" + Row].Value = "";
+        ws.Cells["C" + Row].Value = "OverHead:";
+        ws.Cells["D" + Row].Value = report.Overhead;
+        ws.Cells["E" + Row].Value = report.GrossIncome;
+        ws.Cells["F" + Row].Value = report.BaseCosts;
+        ws.Cells["G" + Row].Value = report.NetIncome;
+
+        ws.Cells[("A" + Row) + (":G" + Row)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        ws.Cells[("A" + Row) + (":G" + Row)].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+
+        ws.Cells["A5:G" + (Row)].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:G" + (Row)].Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:G" + (Row)].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:G" + (Row)].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        Row += 2;
+        ws.Cells["A" + Row].Value = "Cancelled Orders";
+        Row++;
+        ws.Cells[("A" + Row) + (":E" + Row)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        ws.Cells[("A" + Row) + (":E" + Row)].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+        ws.Cells["A" + Row].Value = "Cancel Date";
+        ws.Cells["B" + Row].Value = "Order Id";
+        ws.Cells["C" + Row].Value = "Email";
+        ws.Cells["D" + Row].Value = "Phone#";
+        ws.Cells["E" + Row].Value = "Cancel Reason";
+        var Row2 = Row + 1;
+        IEnumerable<ReservationHeader> cancelled = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCancelled, includeProperties: ("ApplicationUser")).Where(u => u.CancelDate >= report.MinDate).Where(u => u.CancelDate <= report.MaxDate);
+        foreach (var detail in cancelled)
+        {
+            ws.Cells["A" + Row2].Value = detail.CancelDate.ToString();
+            ws.Cells["B" + Row2].Value = detail.Id;
+            ws.Cells["C" + Row2].Value = detail.ApplicationUser.Email;
+            ws.Cells["D" + Row2].Value = detail.Phone;
+            ws.Cells["E" + Row2].Value = detail.CancelReason;
+            Row2++;
+        }
+        ws.Cells["A" + Row + ":E" + (Row2-1)].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A" + Row + ":E" + (Row2-1)].Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A" + Row + ":E" + (Row2-1)].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A" + Row + ":E" + (Row2-1)].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A:AZ"].AutoFitColumns();
+        var fileDownloadName = "Sales_Report_" + report.Name + ".xlsx";
+        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        var fileStream = new MemoryStream();
+        pack.SaveAs(fileStream);
+        fileStream.Position = 0;
+
+        var fsr = new FileStreamResult(fileStream, contentType);
+        fsr.FileDownloadName = fileDownloadName;
+
+        return fsr;
     }
 
     //POST

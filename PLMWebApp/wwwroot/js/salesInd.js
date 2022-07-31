@@ -33,6 +33,9 @@ function loadDataTable() {
                             <a href="/Admin/Sales/SalesCancelled?id=${data}" class="btn btn-danger mx-2">
                                 <i class="bi bi-bag-x"> </i> Items
                             </a>
+                            <a onclick="Excel('/Admin/Sales/Excel/+${data}')" class="btn btn-success mx-2">
+                                <i class="bi bi-file-spreadsheet"></i> Excel
+                            </a>
                             <a onclick="Delete('/Admin/Sales/Delete/+${data}')" class="btn btn-warning mx-2"> 
                                 <i class="bi bi-trash"></i> Delete
                             </a>
@@ -70,6 +73,22 @@ function Delete(url) {
                     }
                 }
             })
+        }
+    })
+}
+
+function Excel(url) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This will download an Excel sheet for this report",
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
         }
     })
 }
