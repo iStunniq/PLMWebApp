@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using PLM.Utility;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using OfficeOpenXml;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
@@ -225,6 +226,86 @@ public class InventoryReportController : Controller
     {
         IEnumerable<InvReportDetail> Batches = _unitOfWork.InvReportDetail.GetAll(u => u.DetailType == "Batch" && u.ProductId == pid && u.ReportId == id);
         return Json(new { data = Batches });
+    }
+    public IActionResult Excel(int id)
+    {
+        InventoryReport report = _unitOfWork.InventoryReport.GetFirstOrDefault(u => u.Id == id);
+        IEnumerable<InvReportDetail> Products = _unitOfWork.InvReportDetail.GetAll(u => u.DetailType == "Product" && u.ReportId == id);
+
+        ExcelPackage pack = new ExcelPackage();
+        ExcelWorksheet ws = pack.Workbook.Worksheets.Add("Report");
+
+        ws.Cells["A1"].Value = "Inventory Report";
+        ws.Cells["B1"].Value = report.Name;
+        ws.Cells["A2"].Value = "Report Generated";
+        ws.Cells["B2"].Value = report.GenerationDate.ToString();
+        ws.Cells["A3"].Value = "Excel Generated";
+        var time = DateTime.Now;
+        ws.Cells["B3"].Value = new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Kind).ToString();
+        ws.Cells["A5:J5"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        ws.Cells["A5:J5"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+
+        ws.Cells["A5"].Value = "Detail Type";
+        ws.Cells["B5"].Value = "Product Name";
+        ws.Cells["C5"].Value = "Brand";
+        ws.Cells["D5"].Value = "Category";
+        ws.Cells["E5"].Value = "Total Stock";
+        ws.Cells["F5"].Value = "Batch Stock";
+        ws.Cells["G5"].Value = "Stock Status";
+        ws.Cells["H5"].Value = "Expiration";
+        ws.Cells["I5"].Value = "Price";
+        ws.Cells["J5"].Value = "Base Price";
+        var Row = 6;
+        foreach (var prod in Products)
+        {
+            ws.Cells["A" + Row].Value = prod.DetailType;
+            ws.Cells["B" + Row].Value = prod.ProductName;
+            ws.Cells["C" + Row].Value = prod.ProductBrand;
+            ws.Cells["D" + Row].Value = prod.ProductCategory;
+            ws.Cells["E" + Row].Value = prod.ProductStock;
+            ws.Cells["F" + Row].Value = "Not a Batch";
+            ws.Cells["G" + Row].Value = prod.ProductStatus;
+            ws.Cells["H" + Row].Value = prod.ProductExpiry.ToString();
+            ws.Cells["I" + Row].Value = prod.ProductPrice;
+            ws.Cells["J" + Row].Value = "Not a Batch";
+            Row++;
+            IEnumerable<InvReportDetail> Batches = _unitOfWork.InvReportDetail.GetAll(u => u.DetailType == "Batch" && u.ProductId == prod.ProductId && u.ReportId == id);
+            foreach (var batch in Batches)
+            {
+                ws.Cells["A" + Row].Value = batch.DetailType;
+                ws.Cells["B" + Row].Value = batch.ProductName;
+                ws.Cells["C" + Row].Value = batch.ProductBrand;
+                ws.Cells["D" + Row].Value = batch.ProductCategory;
+                ws.Cells["E" + Row].Value = batch.ProductStock;
+                ws.Cells["F" + Row].Value = batch.BatchStock;
+                ws.Cells["G" + Row].Value = batch.ProductStatus;
+                ws.Cells["H" + Row].Value = batch.BatchExpiry.ToString();
+                ws.Cells["I" + Row].Value = batch.ProductPrice;
+                ws.Cells["J" + Row].Value = batch.BatchBase;
+                Row++;
+            }
+            ws.Cells["A" + Row + ":J" + Row].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+            ws.Cells["A" + Row + ":J" + Row].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+
+            Row++;
+        }
+        ws.Cells["A:AZ"].AutoFitColumns();
+        ws.Cells["A5:J" + (Row - 1)].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:J" + (Row - 1)].Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:J" + (Row - 1)].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:J" + (Row - 1)].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+
+        var fileDownloadName = "Inventory_" + report.GenerationDate + "_" + report.Name + ".xlsx";
+        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        var fileStream = new MemoryStream();
+        pack.SaveAs(fileStream);
+        fileStream.Position = 0;
+
+        var fsr = new FileStreamResult(fileStream, contentType);
+        fsr.FileDownloadName = fileDownloadName;
+
+        return fsr;
     }
 
     //POST

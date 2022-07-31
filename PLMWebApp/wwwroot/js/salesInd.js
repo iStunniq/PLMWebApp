@@ -31,7 +31,7 @@ function loadDataTable() {
                                 <i class="bi bi-bag-check"> </i> Items
                             </a>
                             <a href="/Admin/Sales/SalesCancelled?id=${data}" class="btn btn-danger mx-2">
-                                <i class="bi bi-bag-x"> </i> Item
+                                <i class="bi bi-bag-x"> </i> Items
                             </a>
                             <a onclick="Delete('/Admin/Sales/Delete/+${data}')" class="btn btn-warning mx-2"> 
                                 <i class="bi bi-trash"></i> Delete

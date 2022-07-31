@@ -114,7 +114,7 @@
 									<label>Preferred Delivery Date</label>
 								</div>
 								<div class="col-9">
-									<input asp-for="ReservationHeader.PreferredDate" value="" class="form-control" type="datetime-local" />
+									<input id="ship" asp-for="ReservationHeader.PreferredDate" value="" class="form-control" type="datetime-local" />
 									<span asp-validation-for="ReservationHeader.PreferredDate" class="text-danger"></span>
 								</div>
 							</div>
@@ -181,6 +181,17 @@
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Please upload GCash Payment Image'
+                    });
+                return false;
+            }
+
+			if (document.getElementById("ship").value < @DateTime.Now) 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Date must be later than today'
                     });
                 return false;
             }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using PLM.Utility;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using OfficeOpenXml;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
@@ -105,7 +106,8 @@ public class DeliveryController : Controller
                 DateTime today = DateTime.Now;
                 Delivery.GenerationDate = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
 
-                foreach (ReservationHeader item in DeliveryItem) {
+                foreach (ReservationHeader item in DeliveryItem)
+                {
                     ReportDetail detail = new ReportDetail
                     {
                         HeaderId = item.Id,
@@ -115,7 +117,7 @@ public class DeliveryController : Controller
                     };
                     _unitOfWork.ReportDetail.Add(detail);
                 }
-                
+
                 _unitOfWork.DeliveryReport.Add(Delivery);
                 TempData["Success"] = "Report Generated Successfully";
             }
@@ -181,7 +183,7 @@ public class DeliveryController : Controller
 
     public IActionResult GetAll2(int id)
     {
-        IEnumerable<ReportDetail> Deliveries = _unitOfWork.ReportDetail.GetAll(u => u.ReportType == "Delivery" && u.ReportId == id, includeProperties:"reservationHeader,reservationHeader.ApplicationUser");
+        IEnumerable<ReportDetail> Deliveries = _unitOfWork.ReportDetail.GetAll(u => u.ReportType == "Delivery" && u.ReportId == id, includeProperties: "reservationHeader,reservationHeader.ApplicationUser");
 
         foreach (var head in Deliveries)
         {
@@ -203,6 +205,65 @@ public class DeliveryController : Controller
         return Json(new { data = Deliveries });
     }
 
+    public IActionResult Excel(int id)
+    {
+        DeliveryReport report = _unitOfWork.DeliveryReport.GetFirstOrDefault(u => u.Id == id);
+        IEnumerable<ReportDetail> Reservations = _unitOfWork.ReportDetail.GetAll(u => u.ReportType == "Delivery" && u.ReportId == id, includeProperties: "reservationHeader,reservationHeader.ApplicationUser");
+        Reservations.OrderBy(u => u.reservationHeader.ShippingDate);
+        ExcelPackage pack = new ExcelPackage();
+        ExcelWorksheet ws = pack.Workbook.Worksheets.Add("Report");
+
+        ws.Cells["A1"].Value = "Delivery Report";
+        ws.Cells["B1"].Value = report.Name;
+        ws.Cells["C1"].Value = "Amount";
+        ws.Cells["D1"].Value = report.ReservationAmount;
+        ws.Cells["A2"].Value = "Report Generated";
+        ws.Cells["B2"].Value = report.GenerationDate.ToString();
+        ws.Cells["A3"].Value = "Excel Generated";
+        var time = DateTime.Now;
+        ws.Cells["B3"].Value = new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Kind).ToString();
+        ws.Cells["A5:H5"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        ws.Cells["A5:H5"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+
+        ws.Cells["A5"].Value = "Ship Date";
+        ws.Cells["B5"].Value = "Order Id";
+        ws.Cells["C5"].Value = "Email";
+        ws.Cells["D5"].Value = "Phone#";
+        ws.Cells["E5"].Value = "Total";
+        ws.Cells["F5"].Value = "COD";
+        ws.Cells["G5"].Value = "Courier";
+        ws.Cells["H5"].Value = "Status";
+        var Row = 6;
+        foreach (var detail in Reservations)
+        {
+            ws.Cells["A" + Row].Value = detail.reservationHeader.ShippingDate.ToString();
+            ws.Cells["B" + Row].Value = detail.reservationHeader.Id;
+            ws.Cells["C" + Row].Value = detail.reservationHeader.ApplicationUser.Email;
+            ws.Cells["D" + Row].Value = detail.reservationHeader.Phone;
+            ws.Cells["E" + Row].Value = detail.reservationHeader.OrderTotal;
+            ws.Cells["F" + Row].Value = detail.reservationHeader.COD;
+            ws.Cells["G" + Row].Value = detail.reservationHeader.Carrier;
+            ws.Cells["H" + Row].Value = detail.reservationHeader.OrderStatus;
+            Row++;
+        }
+        ws.Cells["A:AZ"].AutoFitColumns();
+        ws.Cells["A5:H" + (Row - 1)].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:H" + (Row - 1)].Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:H" + (Row - 1)].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:H" + (Row - 1)].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+
+        var fileDownloadName = "Delivery_Report_" + report.Name + ".xlsx";
+        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        var fileStream = new MemoryStream();
+        pack.SaveAs(fileStream);
+        fileStream.Position = 0;
+
+        var fsr = new FileStreamResult(fileStream, contentType);
+        fsr.FileDownloadName = fileDownloadName;
+
+        return fsr;
+    }
     //POST
     [HttpDelete]
     public IActionResult Delete(int? id)
@@ -212,7 +273,7 @@ public class DeliveryController : Controller
         {
             return Json(new { success = false, message = "Error while deleting" });
         }
-        _unitOfWork.ReportDetail.RemoveRange(_unitOfWork.ReportDetail.GetAll(u => u.ReportId == id && u.ReportType=="Delivery"));
+        _unitOfWork.ReportDetail.RemoveRange(_unitOfWork.ReportDetail.GetAll(u => u.ReportId == id && u.ReportType == "Delivery"));
         _unitOfWork.DeliveryReport.Remove(obj);
         _unitOfWork.Save();
         return Json(new { success = true, message = "Report Deleted Successfully" });

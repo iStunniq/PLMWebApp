@@ -163,7 +163,7 @@
 							<div class="row my-1">
 								<div class="col-3">Shipping Date</div>
 								<div class="col-9">
-									<input asp-for="ReservationHeader.ShippingDate" type="datetime-local" class="form-control"/>
+									<input id="ship" asp-for="ReservationHeader.ShippingDate" type="datetime-local" class="form-control"/>
 								</div>
 								</div>
 							}
@@ -321,6 +321,16 @@
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Please input carrier'
+                    });
+                return false;
+            }
+			if (document.getElementById("ship").value < @DateTime.Now) 
+            {
+                Swal.fire
+                    ({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Date must be later than today'
                     });
                 return false;
             }

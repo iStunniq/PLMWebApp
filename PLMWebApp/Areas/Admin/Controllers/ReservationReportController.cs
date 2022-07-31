@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using PLM.Utility;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using OfficeOpenXml;
 
 namespace PLMWebApp.Controllers;
 [Area("Admin")]
@@ -201,6 +202,66 @@ public class ReservationReportController : Controller
         };
 
         return Json(new { data = Reservations });
+    }
+
+    public IActionResult Excel(int id)
+    {
+        ReservationReport report = _unitOfWork.ReservationReport.GetFirstOrDefault(u => u.Id == id);
+        IEnumerable<ReportDetail> Reservations = _unitOfWork.ReportDetail.GetAll(u => u.ReportType == "Reservation" && u.ReportId == id, includeProperties: "reservationHeader,reservationHeader.ApplicationUser");
+        Reservations.OrderBy(u => u.reservationHeader.OrderDate);
+        ExcelPackage pack = new ExcelPackage();
+        ExcelWorksheet ws = pack.Workbook.Worksheets.Add("Report");
+
+        ws.Cells["A1"].Value = "Delivery Report";
+        ws.Cells["B1"].Value = report.Name;
+        ws.Cells["C1"].Value = "Amount";
+        ws.Cells["D1"].Value = report.ReservationAmount;
+        ws.Cells["A2"].Value = "Report Generated";
+        ws.Cells["B2"].Value = report.GenerationDate.ToString();
+        ws.Cells["C2"].Value = "Report for Status: ";
+        ws.Cells["D2"].Value = report.ReservationStatus;
+        ws.Cells["A3"].Value = "Excel Generated";
+        var time = DateTime.Now;
+        ws.Cells["B3"].Value = new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Kind).ToString();
+        ws.Cells["A5:G5"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+        ws.Cells["A5:G5"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 255, 84, 84));
+
+        ws.Cells["A5"].Value = "Order Date";
+        ws.Cells["B5"].Value = "Order Id";
+        ws.Cells["C5"].Value = "Email";
+        ws.Cells["D5"].Value = "Phone#";
+        ws.Cells["E5"].Value = "Total";
+        ws.Cells["F5"].Value = "COD";
+        ws.Cells["G5"].Value = "Status";
+        var Row = 6;
+        foreach (var detail in Reservations)
+        {
+            ws.Cells["A" + Row].Value = detail.reservationHeader.ShippingDate.ToString();
+            ws.Cells["B" + Row].Value = detail.reservationHeader.Id;
+            ws.Cells["C" + Row].Value = detail.reservationHeader.ApplicationUser.Email;
+            ws.Cells["D" + Row].Value = detail.reservationHeader.Phone;
+            ws.Cells["E" + Row].Value = detail.reservationHeader.OrderTotal;
+            ws.Cells["F" + Row].Value = detail.reservationHeader.COD;
+            ws.Cells["G" + Row].Value = detail.reservationHeader.OrderStatus;
+            Row++;
+        }
+        ws.Cells["A:AZ"].AutoFitColumns();
+        ws.Cells["A5:G" + (Row - 1)].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:G" + (Row - 1)].Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:G" + (Row - 1)].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+        ws.Cells["A5:G" + (Row - 1)].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+
+        var fileDownloadName = "Reservation_Report_" + report.Name +"_"+report.ReservationStatus+ ".xlsx";
+        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        var fileStream = new MemoryStream();
+        pack.SaveAs(fileStream);
+        fileStream.Position = 0;
+
+        var fsr = new FileStreamResult(fileStream, contentType);
+        fsr.FileDownloadName = fileDownloadName;
+
+        return fsr;
     }
 
     //POST
