@@ -47,9 +47,9 @@ namespace PLM.DataAccess.DbInitializer
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer)).GetAwaiter().GetResult();
                 _userManager.CreateAsync(new ApplicationUser
                 {
-                    UserName = "meatify.company@gmail.com",
-                    Email = "meatify.company@gmail.com",
-                    FirstName = "Meatify",
+                    UserName = "SuperAdmin@gmail.com",
+                    Email = "SuperAdmin@gmail.com",
+                    FirstName = "WebApp",
                     LastName = "SuperAdmin",
                     Phone = "00000000000",
                     Address = "N/A",
@@ -58,9 +58,9 @@ namespace PLM.DataAccess.DbInitializer
                     EmailConfirmed = true,
                     IsActive = true,
                     RoleName = SD.Role_Admin,
-                },"MeatifySuperAdmin123*").GetAwaiter().GetResult();
+                },"SuperAdmin123*").GetAwaiter().GetResult();
 
-                ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u=>u.Email=="meatify.company@gmail.com");
+                ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
                 _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
             }
         }
