@@ -33,10 +33,10 @@ function loadDataTable() {
                             <a href="/Admin/Sales/SalesCancelled?id=${data}" class="btn btn-danger mx-2">
                                 <i class="bi bi-bag-x"> </i> Items
                             </a>
-                            <a onclick="Excel('/Admin/Sales/Excel/+${data}')" class="btn btn-success mx-2">
+                            <a onclick="Excel('/Admin/Sales/Excel/${data}')" class="btn btn-success mx-2">
                                 <i class="bi bi-file-spreadsheet"></i> Excel
                             </a>
-                            <a onclick="Delete('/Admin/Sales/Delete/+${data}')" class="btn btn-warning mx-2"> 
+                            <a onclick="Delete('/Admin/Sales/Delete/${data}')" class="btn btn-warning mx-2"> 
                                 <i class="bi bi-trash"></i> Delete
                             </a>
                         </div>

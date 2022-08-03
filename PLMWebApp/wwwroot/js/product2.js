@@ -25,7 +25,7 @@ function loadDataTable() {
                             <a href="/Admin/Product/Upsert?id=${data}" class="btn btn-info mx-2"> 
                                 <i class="bi bi-pencil-square"> </i> Edit 
                             </a>
-                            <a onclick="Delete('/Admin/Product/Delete/+${data}')" class="btn btn-danger mx-2"> 
+                            <a onclick="Delete('/Admin/Product/Delete/${data}')" class="btn btn-danger mx-2"> 
                                 <i class="bi bi-trash"></i> Deactivate
                             </a>
                         </div>
@@ -37,7 +37,7 @@ function loadDataTable() {
                             <a href="/Admin/Product/Upsert?id=${data}" class="btn btn-info mx-2"> 
                                 <i class="bi bi-pencil-square"> </i> Edit 
                             </a>
-                            <a onclick="Activate('/Admin/Product/Activate/+${data}')" class="btn btn-danger mx-2"> 
+                            <a onclick="Activate('/Admin/Product/Activate/${data}')" class="btn btn-danger mx-2"> 
                                 <i class="bi bi-trash"></i> Activate
                             </a>
                         </div>
