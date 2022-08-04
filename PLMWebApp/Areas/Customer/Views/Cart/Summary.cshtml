@@ -186,17 +186,6 @@
                 return false;
             }
 
-			if (document.getElementById("ship").value < @DateTime.Now) 
-            {
-                Swal.fire
-                    ({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Date must be later than today'
-                    });
-                return false;
-            }
-
             $.ajax({
 				type: "GET",
 				url: "/Customer/Cart/SendOtp?id=" + document.getElementById("userId").value + "&otp=" + document.getElementById("otp").value,
