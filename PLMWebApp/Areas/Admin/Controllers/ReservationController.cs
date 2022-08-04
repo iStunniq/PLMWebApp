@@ -454,7 +454,8 @@ namespace PLMWebApp.Areas.Admin.Controllers
             {
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-                reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.ApplicationUserId == claim.Value || u.Carrier == claim.Value, includeProperties: "ApplicationUser");
+                ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+                reservationHeaders = _unitOfWork.ReservationHeader.GetAll(u => u.ApplicationUserId == claim.Value || u.Carrier == user.Email, includeProperties: "ApplicationUser");
             }
             else
             {
