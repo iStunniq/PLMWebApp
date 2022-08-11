@@ -106,7 +106,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 if (SaleRole == "true") {
-                    window.location.href = "/Admin/Reservation?status=pending";
+                    //window.location.href = "/Admin/Reservation?status=pending";
+                    window.location.href = "/Admin/Reservation";
                 } else if (CourRole == "true") {
                     window.location.href = "/Admin/Reservation?status=approval";
                 } 

@@ -105,7 +105,7 @@ public class DeliveryController : Controller
                 Delivery.ReservationAmount = DeliveryItem.Count();
                 DateTime today = DateTime.Now;
                 Delivery.GenerationDate = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
-
+                _unitOfWork.DeliveryReport.Add(Delivery);
                 foreach (ReservationHeader item in DeliveryItem)
                 {
                     ReportDetail detail = new ReportDetail
@@ -118,7 +118,6 @@ public class DeliveryController : Controller
                     _unitOfWork.ReportDetail.Add(detail);
                 }
 
-                _unitOfWork.DeliveryReport.Add(Delivery);
                 TempData["Success"] = "Report Generated Successfully";
             }
             else
@@ -128,7 +127,7 @@ public class DeliveryController : Controller
                 Delivery.ReservationAmount = DeliveryItem.Count();
                 DateTime today = DateTime.Now;
                 Delivery.GenerationDate = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
-
+                _unitOfWork.DeliveryReport.Update(Delivery);
                 _unitOfWork.ReportDetail.RemoveRange(_unitOfWork.ReportDetail.GetAll(u => u.ReportType == "Delivery" && u.ReportId == Delivery.Id));
                 foreach (ReservationHeader item in DeliveryItem)
                 {
@@ -142,7 +141,6 @@ public class DeliveryController : Controller
                     _unitOfWork.ReportDetail.Add(detail);
                 }
 
-                _unitOfWork.DeliveryReport.Update(Delivery);
                 TempData["Success"] = "Report Generated Successfully";
             }
 

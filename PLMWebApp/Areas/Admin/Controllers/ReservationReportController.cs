@@ -105,6 +105,7 @@ public class ReservationReportController : Controller
                 Reservation.ReservationAmount = ReservationItem.Count();
                 DateTime today = DateTime.Now;
                 Reservation.GenerationDate = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
+                _unitOfWork.ReservationReport.Add(Reservation);
 
                 foreach (ReservationHeader item in ReservationItem) {
                     ReportDetail detail = new ReportDetail
@@ -117,7 +118,6 @@ public class ReservationReportController : Controller
                     _unitOfWork.ReportDetail.Add(detail);
                 }
                 
-                _unitOfWork.ReservationReport.Add(Reservation);
                 TempData["Success"] = "Report Generated Successfully";
             }
             else
@@ -127,7 +127,9 @@ public class ReservationReportController : Controller
                 Reservation.ReservationAmount = ReservationItem.Count();
                 DateTime today = DateTime.Now;
                 Reservation.GenerationDate = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
-
+                
+                _unitOfWork.ReservationReport.Update(Reservation);
+                
                 _unitOfWork.ReportDetail.RemoveRange(_unitOfWork.ReportDetail.GetAll(u => u.ReportType == "Reservation" && u.ReportId == Reservation.Id));
                 foreach (ReservationHeader item in ReservationItem)
                 {
@@ -141,7 +143,7 @@ public class ReservationReportController : Controller
                     _unitOfWork.ReportDetail.Add(detail);
                 }
 
-                _unitOfWork.ReservationReport.Update(Reservation);
+                
                 TempData["Success"] = "Report Generated Successfully";
             }
 

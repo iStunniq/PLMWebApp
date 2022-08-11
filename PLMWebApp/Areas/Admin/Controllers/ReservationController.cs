@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿    using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +59,20 @@ namespace PLMWebApp.Areas.Admin.Controllers
             IEnumerable<ApplicationUser> Admins = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Admin));
 
             foreach (var man in Admins)
+            {
+                ReservationViewed view = new();
+                view.OrderId = reservationHeader.Id;
+                view.AlertEmail = man.Email;
+                _unitOfWork.ReservationViewed.Add(view);
+                _unitOfWork.Save();
+            };
+        }
+
+        public void AlertSales(ReservationHeader reservationHeader)
+        {
+            IEnumerable<ApplicationUser> Sales = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
+
+            foreach (var man in Sales)
             {
                 ReservationViewed view = new();
                 view.OrderId = reservationHeader.Id;
@@ -360,6 +374,15 @@ namespace PLMWebApp.Areas.Admin.Controllers
             };
 
             AlertAdmin(reservationHeaderFromDb);
+
+            IEnumerable<ApplicationUser> sales = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
+            foreach (var man in sales)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation is Completed - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+
+            AlertSales(reservationHeaderFromDb);
+
             UpdateReports();
             _unitOfWork.Save();
             TempData["Success"] = "Reservation is Completed; Status Updated Successfully";
@@ -376,6 +399,14 @@ namespace PLMWebApp.Areas.Admin.Controllers
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusPending;
             reservationHeaderFromDb.Carrier = "";
+
+            IEnumerable<ApplicationUser> sales = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
+            foreach (var man in sales)
+            {
+                _emailSender.SendEmailAsync(man.Email, "Reservation is Pending - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p>");
+            };
+            AlertSales(reservationHeaderFromDb);
+
             _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation is Pending; Status Updated Successfully";
@@ -423,6 +454,7 @@ namespace PLMWebApp.Areas.Admin.Controllers
                 _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
             };
 
+            AlertAdmin(reservationHeader);
             //IEnumerable<ApplicationUser> logEmployees = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Logistics));
 
             //foreach (var man in logEmployees)
@@ -436,6 +468,8 @@ namespace PLMWebApp.Areas.Admin.Controllers
             {
                 _emailSender.SendEmailAsync(man.Email, "Reservation Cancelled - Meatify", $"<p><h3>{man.FirstName}, please check action for reservation number {ReservationVM.ReservationHeader.Id}. Go to Reservations.</h3></p> <p>This reservation was cancelled with the reason of {reservationHeader2.CancelReason}.</p>");
             };
+
+            AlertSales(reservationHeader);
 
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
         }
