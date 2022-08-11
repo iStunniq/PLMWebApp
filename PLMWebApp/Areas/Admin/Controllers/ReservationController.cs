@@ -399,6 +399,14 @@ namespace PLMWebApp.Areas.Admin.Controllers
             var reservationHeaderFromDb = _unitOfWork.ReservationHeader.GetFirstOrDefault(u => u.Id == ReservationVM.ReservationHeader.Id, includeProperties: "ApplicationUser", tracked: false);
             reservationHeaderFromDb.OrderStatus = SD.StatusPending;
             reservationHeaderFromDb.Carrier = "";
+            _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
+
+            _unitOfWork.ReservationViewed.RemoveRange(_unitOfWork.ReservationViewed.GetAll(u => u.OrderId == reservationHeaderFromDb.Id));
+            ReservationViewed view = new();
+            view.OrderId = reservationHeaderFromDb.Id;
+            view.AlertEmail = reservationHeaderFromDb.ApplicationUser.Email;
+            _unitOfWork.ReservationViewed.Add(view);
+            _unitOfWork.Save();
 
             IEnumerable<ApplicationUser> sales = _unitOfWork.ApplicationUser.GetAll().Where(u => ValidateRole(u.Email, SD.Role_Sales));
             foreach (var man in sales)
@@ -407,7 +415,6 @@ namespace PLMWebApp.Areas.Admin.Controllers
             };
             AlertSales(reservationHeaderFromDb);
 
-            _unitOfWork.ReservationHeader.Update(reservationHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Reservation is Pending; Status Updated Successfully";
             return RedirectToAction("Details", "Reservation", new { reservationId = ReservationVM.ReservationHeader.Id });
