@@ -208,15 +208,15 @@
 										<div class="row container">
 											<div class="col-6">
 												<h6 class="my-0 text-primary">@detail.Batch.Product.Name</h6>
-												<small class="text-muted"> Price : @detail.Batch.Product.Price.ToString("c") </small><br />
+												<small class="text-muted"> Price : @detail.Batch.Product.Price.ToString() PHP </small><br />
 												<small class="text-muted"> Quantity : @detail.Count </small><br />
 												<small class="text-muted"> Batch No. : @detail.Batch.Id </small>
 											</div>
 											<div class="col-6 text-end">
-												<p class="text-yellow"> @((detail.Count * detail.Price).ToString("c")) </p>
-												<small class="text-muted"> Batch Cost: @detail.Batch.BasePrice.ToString("c") </small>
-												<small class="text-primary"> @((detail.Batch.BasePrice*detail.Count).ToString("c")) </small><br/>
-												<small class="text-success"> Net: @(((detail.Price*detail.Count)-(detail.Batch.BasePrice*detail.Count)).ToString("c"))
+												<p class="text-yellow"> @((detail.Count * detail.Price).ToString()) PHP </p>
+												<small class="text-muted"> Batch Cost: @detail.Batch.BasePrice.ToString() PHP </small>
+												<small class="text-primary"> @((detail.Batch.BasePrice*detail.Count).ToString()) PHP </small><br/>
+												<small class="text-success"> Net: @(((detail.Price*detail.Count)-(detail.Batch.BasePrice*detail.Count)).ToString()) PHP
 											</div>
 										</div>
 									</li>
@@ -228,19 +228,19 @@
 											<h5 class="text-white">TOTAL </h5>
 										</div>
 										<div class="col-6 text-end">
-											<h5 class="text-white">@Model.ReservationHeader.OrderTotal.ToString("c")</h5>
+											<h5 class="text-white">@Model.ReservationHeader.OrderTotal.ToString() PHP</h5>
 										</div>
 										<div class="col-6">
 											<h5 class="text-white">Base Expense </h5>
 										</div>
 										<div class="col-6 text-end">
-											<h5 class="text-danger">@Model.ReservationHeader.BaseTotal.ToString("c")</h5>
+											<h5 class="text-danger">@Model.ReservationHeader.BaseTotal.ToString() PHP</h5>
 										</div>
 										<div class="col-6">
 											<h5 class="text-white">Net Total </h5>
 										</div>
 										<div class="col-6 text-end">
-											<h5 class="text-success">@((Model.ReservationHeader.OrderTotal - Model.ReservationHeader.BaseTotal).ToString("c"))</h5>
+											<h5 class="text-success">@((Model.ReservationHeader.OrderTotal - Model.ReservationHeader.BaseTotal).ToString()) PHP</h5>
 										</div>
 									</div>
 								</li>

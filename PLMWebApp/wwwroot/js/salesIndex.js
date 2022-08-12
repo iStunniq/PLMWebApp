@@ -28,10 +28,10 @@ function loadDataTable() {
                                 <i class="bi bi-pencil-square"> </i> Edit 
                             </a>
                             <a href="/Admin/Sales/SalesItems?id=${data}" class="btn btn-success mx-2">
-                                <i class="bi bi-bag-check"> </i> Items
+                                <i class="bi bi-bag-check"> </i> Complete
                             </a>
                             <a href="/Admin/Sales/SalesCancelled?id=${data}" class="btn btn-danger mx-2">
-                                <i class="bi bi-bag-x"> </i> Items
+                                <i class="bi bi-bag-x"> </i> Cancelled
                             </a>
                             <a onclick="Excel('/Admin/Sales/Excel/${data}')" class="btn btn-success mx-2">
                                 <i class="bi bi-file-spreadsheet"></i> Excel

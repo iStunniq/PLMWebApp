@@ -228,7 +228,7 @@ public class DeliveryController : Controller
         ws.Cells["C5"].Value = "Email";
         ws.Cells["D5"].Value = "Phone#";
         ws.Cells["E5"].Value = "Total";
-        ws.Cells["F5"].Value = "COD";
+        ws.Cells["F5"].Value = "Pay Type";
         ws.Cells["G5"].Value = "Courier";
         ws.Cells["H5"].Value = "Status";
         var Row = 6;
@@ -239,7 +239,10 @@ public class DeliveryController : Controller
             ws.Cells["C" + Row].Value = detail.reservationHeader.ApplicationUser.Email;
             ws.Cells["D" + Row].Value = detail.reservationHeader.Phone;
             ws.Cells["E" + Row].Value = detail.reservationHeader.OrderTotal;
-            ws.Cells["F" + Row].Value = detail.reservationHeader.COD;
+            
+            if (detail.reservationHeader.COD) { ws.Cells["F" + Row].Value = "COD"; }
+            else { ws.Cells["F" + Row].Value = "GCash"; }
+            
             ws.Cells["G" + Row].Value = detail.reservationHeader.Carrier;
             ws.Cells["H" + Row].Value = detail.reservationHeader.OrderStatus;
             Row++;

@@ -209,12 +209,12 @@
 										<div class="row container">
 											<div class="col-6">
 												<h6 class="my-0 text-primary">@detail.Batch.Product.Name</h6>
-												<small class="text-muted"> Price : @detail.Batch.Product.Price.ToString("c") </small><br />
+												<small class="text-muted"> Price : @detail.Batch.Product.Price.ToString() PHP </small><br />
 												<small class="text-muted"> Quantity : @detail.Count </small><br />
 												<small class="text-muted"> Batch No. : @detail.Batch.Id </small>
 											</div>
 											<div class="col-6 text-end">
-												<p class="text-yellow"> @((detail.Count * detail.Price).ToString("c")) </p>
+												<p class="text-yellow"> @((detail.Count * detail.Price).ToString()) PHP </p>
 											</div>
 										</div>
 									</li>

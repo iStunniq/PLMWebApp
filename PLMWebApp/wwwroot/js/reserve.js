@@ -48,7 +48,17 @@ function loadDataTable(status) {
             { "data": "phone", "width": "15%" },
             { "data": "applicationUser.email", "width": "15%" },
             { "data": "orderStatus", "width": "10%" },
-            { "data": "cod", "width": "10%" },
+            {
+                "data": "cod",
+                "render": function (data, type, row) {
+                    if (data) {
+                        return 'COD'
+                    } else {
+                        return 'GCash'
+                    }
+                },
+                "width": "10%"
+            },
             { "data": "orderTotal", "width": "10%" },
             {
                 "data": "id",
