@@ -153,11 +153,10 @@ public class SalesController : Controller
             else
             {
                 IEnumerable<ReservationHeader> salesItem = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCompleted).Where(u => u.ShippingDate >= sales.MinDate).Where(u => u.ShippingDate <= sales.MaxDate);
-                sales.ReservationAmount = 0;
-                foreach (var head in salesItem)
-                {
-                    sales.ReservationAmount += 1;
-                };
+                IEnumerable<ReservationHeader> cancelItem = _unitOfWork.ReservationHeader.GetAll(u => u.OrderStatus == SD.StatusCancelled).Where(u => u.CancelDate >= sales.MinDate).Where(u => u.CancelDate <= sales.MaxDate);
+
+                sales.ReservationAmount = salesItem.Count();
+                sales.CancelledAmount = cancelItem.Count();
                 sales.BaseCosts = 0;
                 foreach (var head in salesItem)
                 {
